@@ -1,0 +1,29 @@
+package components
+
+type Movie struct {
+	Title  string
+	Year   string
+	Poster string
+}
+
+templ MovieResults(movies []Movie) {
+    if len(movies) == 0 {
+        <tr>
+            <td colspan="4">
+                <p>No results found.</p>
+            </td>
+        </tr>
+    }
+	for _, movie := range movies {
+		<tr>
+			<td>
+				<img src={ movie.Poster } alt={ movie.Title }/>
+			</td>
+			<td>{ movie.Title }</td>
+			<td>{ movie.Year }</td>
+			<td>
+				<button>Select</button>
+			</td>
+		</tr>
+	}
+}
