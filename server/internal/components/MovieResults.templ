@@ -4,26 +4,38 @@ type Movie struct {
 	Title  string
 	Year   string
 	Poster string
+	Id     string
 }
 
 templ MovieResults(movies []Movie) {
     if len(movies) == 0 {
-        <tr>
-            <td colspan="4">
-                <p>No results found.</p>
-            </td>
-        </tr>
-    }
-	for _, movie := range movies {
-		<tr>
-			<td>
-				<img src={ movie.Poster } alt={ movie.Title }/>
-			</td>
-			<td>{ movie.Title }</td>
-			<td>{ movie.Year }</td>
-			<td>
-				<button>Select</button>
-			</td>
-		</tr>
+        <p>0 movies found with that name</p>
+    } else {
+        <thead>
+            <tr>
+                <th>Poster</th>
+                <th>Title</th>
+                <th>Year</th>
+                <th />
+            </tr>
+        </thead>
+        <tbody id="search-results">
+            for _, movie := range movies {
+                {{ recUrl := templ.SafeURL("/recommendations/" + movie.Id) }}
+                <tr>
+                    <td>
+                        <img src={ movie.Poster } alt={ movie.Title }/>
+                    </td>
+                    <td>{ movie.Title }</td>
+                    <td>{ movie.Year }</td>
+                    <td>
+                        <a href={recUrl}>
+                            <svg width="24px" height="24px" viewBox="0 0 24 24" stroke-width="1.5" fill="none" xmlns="http://www.w3.org/2000/svg" color="#000000"><path d="M3 12L21 12M21 12L12.5 3.5M21 12L12.5 20.5" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
 	}
 }
+

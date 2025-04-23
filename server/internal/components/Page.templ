@@ -1,6 +1,6 @@
 package components
 
-templ Page() {
+templ Page(mainContents templ.Component) {
 	<html>
 		<head>
 			<meta charset="UTF-8"/>
@@ -12,10 +12,14 @@ templ Page() {
 				rel="stylesheet"
 				href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css"
 			/>
+			<link
+				rel="stylesheet"
+				href="/assets/css/index.css"
+			/>
 		</head>
 		<body>
             @Header()
-            @Main()
+            @Main(mainContents)
             @Footer()
         </body>
 	</html>
