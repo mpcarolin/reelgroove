@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -32,32 +33,79 @@ func main() {
 		return c.String(http.StatusOK, response)
 	})
 
-	e.GET("/app", func(c echo.Context) error {
+	e.GET("/home", func(c echo.Context) error {
 		component := components.Page(components.MovieSearch())
 		return component.Render(context.Background(), c.Response().Writer)
 	})
 
-	e.GET("/recommendations/:id", func(c echo.Context) error {
+	// e.POST("/movie/:id/recommendations/:action", func(c echo.Context) error {
+	// 	id := c.Param("id")
+	// 	action := c.Param("action")
+
+	// 	cookie, err := c.Cookie("recommendation_ids")
+	// 	if err != nil {
+	// 		return c.String(http.StatusInternalServerError, err.Error())
+	// 	}
+
+	// 	recommendation_ids := strings.Split(cookie.Value, ",")
+
+	// 	next_recommendation_id := recommendation_ids[0]
+
+	// 	switch action {
+	// 	case "skip":
+	// 		return c.String(http.StatusOK, "Skipping recommendation")
+	// 	case "maybe":
+	// 		return c.String(http.StatusOK, "Maybe recommendation")
+	// 	case "watch":
+	// 		return c.String(http.StatusOK, "Watching recommendation")
+	// 	}
+	// 	return nil
+	// })
+
+	e.GET("/movie/:id/recommendations", func(c echo.Context) error {
 		id := c.Param("id")
-		component := components.Page(components.Recommendations(id))
+
+		recommendations, err := utils.GetMovieRecommendations(id)
+		if err != nil {
+			return c.String(http.StatusInternalServerError, err.Error())
+		}
+
+		recommendationIds := []string{}
+		for _, movie := range recommendations.Results {
+			recommendationIds = append(recommendationIds, strconv.Itoa(movie.Id))
+		}
+
+		// Create an http cookie to store the recommendation result ids
+		cookie := &http.Cookie{
+			Name:  "recommendation_ids",
+			Value: strings.Join(recommendationIds, ","),
+			HttpOnly: true,
+			Path:  "/",
+		}
+		http.SetCookie(c.Response().Writer, cookie)
+
+		trailer, err := utils.GetBestMovieTrailer(id)
+		if err != nil {
+			return c.String(http.StatusInternalServerError, err.Error())
+		}
+
+		component := components.Page(components.Recommendations(trailer))
 		return component.Render(context.Background(), c.Response().Writer)
 	})
 
 	e.GET("/movies", func(c echo.Context) error {
 		search := c.QueryParam("search")
-		movies := []components.Movie{
-			{Id: "f47ac10b-58cc-4372-a567-0e02b2c3d479", Title: "Alien", Year: "1979", Poster: "https://m.media-amazon.com/images/M/MV5BY2RlZDYzZjktYjIiMzYwZjYtNDYyZi04YjYzLTg1YmQzZjU4YzI1ZjU@._V1_SX300.jpg"},
-			{Id: "7f8d35a2-e34b-4a8c-9f2d-3e6b4c5d8a9f", Title: "The Matrix", Year: "1999", Poster: "https://m.media-amazon.com/images/M/MV5BNzM3NDFhYjctMTNlZS00MTI5LTg0ZTEtNjJkMTZmMWIwYjRmXkEyXkFqcGc@._V1_SX300.jpg"},
-			{Id: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d", Title: "The Dark Knight", Year: "2008", Poster: "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2MzE@._V1_SX300.jpg"},
-			{Id: "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e", Title: "The Dark Knight Rises", Year: "2012", Poster: "https://m.media-amazon.com/images/M/MV5BMTk4ODQzNDY3Mkg@._V1_SX300.jpg"},
+		response, err := utils.SearchMovies(search)
+		if err != nil {
+			return c.String(http.StatusInternalServerError, err.Error())
 		}
-		searchResults := []components.Movie{}
+		movies := response.Results
+		searchResults := []utils.Movie{}
 		for _, movie := range movies {
 			if strings.Contains(strings.ToLower(movie.Title), strings.ToLower(search)) {
 				searchResults = append(searchResults, movie)
 			}
 		}
-		e.Logger.Infof("searchResult Length: %d, search: %s", len(searchResults), search)
 
 		component := components.MovieResults(searchResults)
 

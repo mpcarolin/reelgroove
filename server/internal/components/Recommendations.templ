@@ -1,10 +1,65 @@
 package components
 
-templ Recommendations(id string) {
-	<div>
-		<h1>Recommendations for {id}</h1>
-		<p>
-			Here are some recommendations for {id}.
-		</p>
+import "github.com/mpcarolin/cinematch-server/internal/utils"
+
+templ Recommendations(trailer utils.Trailer) {
+	<div class="recommendations-container">
+		@YouTubeVideo(trailer.Key)
+		<div class="recommendations-buttons">
+			<button
+				id="skip-button"
+				hx-post="/movie/{{trailer.Id}}/recommendations/skip"
+				hx-target="#recommendations-container"
+				data-tooltip="Move on to the next recommendation"
+				data-placement="bottom"
+			>
+				Skip
+			</button>
+			<button
+                id="maybe-button"
+                hx-post="/movie/{{trailer.Id}}/recommendations/maybe"
+                hx-target="#recommendations-container"
+                data-tooltip="We'll keep track of this one for you, but we will show you another trailer next."
+                data-placement="bottom"
+            >
+                Maybe
+            </button>
+			<button
+                id="watch-button"
+                hx-post="/movie/{{trailer.Id}}/recommendations/watch"
+                hx-target="#recommendations-container"
+                data-tooltip="Stop watching trailers and see the streaming options for this one!"
+                data-placement="bottom"
+            >
+                Watch now
+            </button>
+		</div>
 	</div>
+}
+
+// Just reusable code to embed a YouTube video. Might want to move the script to the index.html
+templ YouTubeVideo(key string) {
+	{{ src := templ.SafeURL("https://www.youtube.com/embed/" + key + "?enablejsapi=1") }}
+	{{ id := "youtube-video-" + key }}
+	<iframe
+		id={ id + "-iframe" }
+		class="recommendations-video-iframe"
+		src={ string(src) }
+		frameborder="0"
+		style="border: solid 4px #37474F"
+	></iframe>
+	<script id={ id } type="text/javascript">
+        var tag = document.createElement('script');
+        tag.src = 'https://www.youtube.com/iframe_api';
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        var player;
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                videoId: "{{ key }}",
+                playerVars: { 'autoplay': 1, 'controls': 0 }
+            });
+        }
+    </script>
 }
