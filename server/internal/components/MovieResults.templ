@@ -1,8 +1,6 @@
 package components
 
 import (
-	"strconv"
-
 	"github.com/mpcarolin/cinematch-server/internal/utils"
 )
 
@@ -20,18 +18,16 @@ templ MovieResults(movies []utils.Movie) {
         </thead>
         <tbody id="search-results">
             for _, movie := range movies {
-                {{ recUrl := templ.SafeURL("/movie/" + strconv.Itoa(movie.Id) + "/recommendations" ) }}
-                {{ posterUrl := "https://image.tmdb.org/t/p/w500/" + movie.Poster }}
                 <tr class="search-result-row">
                         <td>
                             if (movie.Poster != "") {
-                                <img class="movie-result-poster" src={posterUrl} alt={ movie.Title }/>
+                                <img class="movie-result-poster" src={movie.FullPosterURL()} alt={ movie.Title }/>
                             }
                         </td>
                     <td><b>{ movie.Title }</b></td>
                     <td>{ movie.ReleaseDate }</td>
                     <td>
-                        <a href={recUrl}>
+                        <a href={templ.SafeURL(movie.RecommendationURL())}>
                             <i class="table-action-icon iconoir-arrow-right"></i>
                         </a>
                     </td>

@@ -1,0 +1,50 @@
+package components
+
+type VideoConfig struct {
+	Autoplay bool
+}
+
+func (config VideoConfig) Allow() string {
+	if config.Autoplay {
+		return "autoplay"
+	}
+	return ""
+}
+
+func (config VideoConfig) SafeUrl(key string) templ.SafeURL {
+	baseUrl := "https://www.youtube.com/embed/" + key
+	if config.Autoplay {
+		return templ.SafeURL(baseUrl + "?enablejsapi=1&autoplay=1")
+	} else {
+		return templ.SafeURL(baseUrl + "?enablejsapi=1")
+	}
+}
+
+script YoutubeEmbedSetup(key string) {
+    var tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+    var player;
+    function onYouTubeIframeAPIReady() {
+        player = new YT.Player('player', {
+            videoId: "{{ key }}",
+            playerVars: { 'autoplay': 1, 'controls': 0 }
+        });
+    }
+}
+
+templ YouTubeVideoEmbed(key string, config VideoConfig) {
+	{{ src := config.SafeUrl(key) }}
+	{{ id := "youtube-video-" + key }}
+	<iframe
+		id={ id + "-iframe" }
+		class="recommendations-video-iframe"
+		src={ string(src) }
+		frameborder="0"
+		style="border: solid 4px #37474F"
+		allow={ config.Allow() }
+	></iframe>
+	@YoutubeEmbedSetup(key)
+}

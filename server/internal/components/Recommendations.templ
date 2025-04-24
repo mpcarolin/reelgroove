@@ -1,65 +1,83 @@
 package components
 
-import "github.com/mpcarolin/cinematch-server/internal/utils"
+import (
+    "strconv"
+	"github.com/mpcarolin/cinematch-server/internal/utils"
+)
 
-templ Recommendations(trailer utils.Trailer) {
+func GetSkipUrl(currentTrailer utils.Trailer) string {
+	return "/movie/" + strconv.Itoa(currentTrailer.MovieId) + "/recommendations/skip"
+}
+
+func GetMaybeUrl(currentTrailer utils.Trailer) string {
+	return "/movie/" + strconv.Itoa(currentTrailer.MovieId) + "/recommendations/maybe"
+}
+
+func GetWatchUrl(currentTrailer utils.Trailer) string {
+	return "/movie/" + strconv.Itoa(currentTrailer.MovieId) + "/recommendations/watch"
+}
+
+templ Recommendations(currentTrailer utils.Trailer, recommendations []utils.Movie) {
 	<div class="recommendations-container">
-		@YouTubeVideo(trailer.Key)
-		<div class="recommendations-buttons">
-			<button
-				id="skip-button"
-				hx-post="/movie/{{trailer.Id}}/recommendations/skip"
-				hx-target="#recommendations-container"
-				data-tooltip="Move on to the next recommendation"
-				data-placement="bottom"
-			>
-				Skip
-			</button>
-			<button
-                id="maybe-button"
-                hx-post="/movie/{{trailer.Id}}/recommendations/maybe"
-                hx-target="#recommendations-container"
-                data-tooltip="We'll keep track of this one for you, but we will show you another trailer next."
-                data-placement="bottom"
-            >
-                Maybe
-            </button>
-			<button
-                id="watch-button"
-                hx-post="/movie/{{trailer.Id}}/recommendations/watch"
-                hx-target="#recommendations-container"
-                data-tooltip="Stop watching trailers and see the streaming options for this one!"
-                data-placement="bottom"
-            >
-                Watch now
-            </button>
+		@RecommendationProgressBanner(currentTrailer, recommendations)
+		<h2 class="recommendations-title">Next Up</h2>
+		<div class="recommendations-trailer-buttons-container">
+			@YouTubeVideoEmbed(currentTrailer.Key, VideoConfig{ Autoplay: false })
+			<div class="recommendations-buttons">
+				<button
+					id="skip-button"
+					hx-put={GetSkipUrl(currentTrailer)}
+					hx-target=".recommendations-container"
+                    hx-swap="outerHTML"
+					data-tooltip="Move on to the next recommendation"
+					data-placement="top"
+				>
+                    <i class="iconoir-thumbs-down"></i>
+					Skip
+				</button>
+				<button
+					id="maybe-button"
+					hx-put={GetMaybeUrl(currentTrailer)}
+					hx-target=".recommendations-container"
+                    hx-swap="outerHTML"
+					data-tooltip="We'll hold onto this one for you, but we will show you another trailer next."
+					data-placement="top"
+				>
+                    <i class="iconoir-thumbs-up"></i>
+					Maybe
+				</button>
+				<button
+					id="watch-button"
+					hx-put={GetWatchUrl(currentTrailer)}
+					hx-target=".recommendations-container"
+                    hx-swap="outerHTML"
+					data-tooltip="Stop watching trailers and see the streaming options for this one!"
+					data-placement="top"
+				>
+                    <i class="iconoir-movie"></i>
+                    Watch
+				</button>
+			</div>
 		</div>
 	</div>
 }
 
-// Just reusable code to embed a YouTube video. Might want to move the script to the index.html
-templ YouTubeVideo(key string) {
-	{{ src := templ.SafeURL("https://www.youtube.com/embed/" + key + "?enablejsapi=1") }}
-	{{ id := "youtube-video-" + key }}
-	<iframe
-		id={ id + "-iframe" }
-		class="recommendations-video-iframe"
-		src={ string(src) }
-		frameborder="0"
-		style="border: solid 4px #37474F"
-	></iframe>
-	<script id={ id } type="text/javascript">
-        var tag = document.createElement('script');
-        tag.src = 'https://www.youtube.com/iframe_api';
-        var firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-        var player;
-        function onYouTubeIframeAPIReady() {
-            player = new YT.Player('player', {
-                videoId: "{{ key }}",
-                playerVars: { 'autoplay': 1, 'controls': 0 }
-            });
-        }
-    </script>
+templ RecommendationProgressBanner(currentTrailer utils.Trailer, recommendations []utils.Movie) {
+	<div class="recommendation-progress-banner">
+		for idx, movie := range recommendations {
+			{{ matchesMovie := movie.Id == currentTrailer.MovieId }}
+			<div class={ "recommendation-progress-banner-trailer" }>
+				<img
+					class={ "recommendation-progress-banner-trailer-poster",
+                        templ.KV("blur", !matchesMovie),
+                        templ.KV("active", matchesMovie) }
+					src={ movie.FullPosterURL() }
+					alt={ movie.Title }
+				/>
+			</div>
+			if idx < len(recommendations) - 1 {
+				<i class="recommendation-progress-banner-trailer-connector iconoir-git-commit"></i>
+			}
+		}
+	</div>
 }
