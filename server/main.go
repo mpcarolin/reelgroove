@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"log/slog"
+	"math"
 	"net/http"
 	"slices"
 	"strconv"
@@ -13,6 +15,7 @@ import (
 
 	"github.com/mpcarolin/cinematch-server/internal/components"
 	"github.com/mpcarolin/cinematch-server/internal/constants/env"
+	"github.com/mpcarolin/cinematch-server/internal/models"
 	"github.com/mpcarolin/cinematch-server/internal/utils"
 )
 
@@ -39,20 +42,25 @@ func main() {
 		return component.Render(context.Background(), c.Response().Writer)
 	})
 
-	e.PUT("/movie/:movieId/recommendations/:action", func(c echo.Context) error {
+
+	e.GET("/movie/:movieId/recommendations/:recommendationId", func(c echo.Context) error {
 		movieId, err := strconv.Atoi(c.Param("movieId"))
 		if err != nil {
 			return c.String(http.StatusBadRequest, "Invalid movie id")
 		}
 
-		action := c.Param("action")
+		recommendationId, err := strconv.Atoi(c.Param("recommendationId"))
+		if err != nil {
+			return c.String(http.StatusBadRequest, "Invalid recommendation id")
+		}
 
-		recommendationIds, err := utils.GetRecommendationIdsFromCookie(c)
+
+		recommendations, err := utils.GetMovieRecommendations(movieId)
 		if err != nil {
 			return c.String(http.StatusInternalServerError, err.Error())
 		}
 
-		currentRecommendationId, err := utils.GetCurrentRecommendationMovieIdFromCookie(c)
+		nextTrailer, err := utils.GetBestMovieTrailer(recommendationId)
 		if err != nil {
 			return c.String(http.StatusInternalServerError, err.Error())
 		}
@@ -62,76 +70,61 @@ func main() {
 			return c.String(http.StatusInternalServerError, err.Error())
 		}
 
+		slog.Info("userLikes", "userLikes", userLikes)
 
+		return components.Page(
+			components.Recommendations(models.AppContext{
+				MovieId: movieId,
+				Trailer: nextTrailer,
+				Recommendations: recommendations.Results,
+				UserLikes: userLikes,
+			}),
+		).Render(context.Background(), c.Response().Writer)
+	})
+
+	e.PUT("/movie/:movieId/recommendations/:recommendationId/:action", func(c echo.Context) error {
+		movieId, err := strconv.Atoi(c.Param("movieId"))
+		if err != nil {
+			return c.String(http.StatusBadRequest, "Invalid movie id")
+		}
+
+		recommendationId, err := strconv.Atoi(c.Param("recommendationId"))
+		if err != nil {
+			return c.String(http.StatusBadRequest, "Invalid recommendation id")
+		}
+
+		action := c.Param("action")
+
+		userLikes, err := utils.GetUserLikesFromCookie(c)
+		if err != nil {
+			return c.String(http.StatusInternalServerError, err.Error())
+		}
+
+		recommendations, err := utils.GetMovieRecommendations(movieId)
+		if err != nil {
+			return c.String(http.StatusInternalServerError, err.Error())
+		}
+
+		currentRecommendationIndex := slices.IndexFunc(recommendations.Results, func(recommendation utils.Movie) bool { return recommendation.Id == recommendationId })
+		nextRecommendationIndex := math.Min(float64(currentRecommendationIndex + 1), float64(len(recommendations.Results) - 1));
+		nextRecommendationId := recommendations.Results[int(nextRecommendationIndex)].Id
+
+		nextRecommendationUrl := "/movie/" + strconv.Itoa(movieId) + "/recommendations/" + strconv.Itoa(nextRecommendationId)
 		switch action {
 		case "skip":
-			idx := slices.Index(recommendationIds, strconv.Itoa(currentRecommendationId))
-			if idx == -1 {
-				// TODO: handle this better
-				return c.String(http.StatusInternalServerError, "Current recommendation not found")
-			}
-			nextRecommendationId := recommendationIds[idx+1]
-			nextRecommendationCookie := utils.CreateCurrentRecommendationCookie(nextRecommendationId)
-			http.SetCookie(c.Response().Writer, nextRecommendationCookie)
-
-			nextRecommendationIdInt, err := strconv.Atoi(nextRecommendationId)
-			if err != nil {
-				return c.String(http.StatusInternalServerError, err.Error())
-			}
-
-			recommendations, err := utils.GetMovieRecommendations(movieId)
-			if err != nil {
-				return c.String(http.StatusInternalServerError, err.Error())
-			}
-
-			// TODO: major problem. We don't want to fetch all these recommendations every time we run this endpoint.
-			// We need to preserve them somehow, but cookies aren't the right tool, because of limited space.
-			// THis will work for now because this is mocked out function but once it's not, we need to fix this.
-			nextTrailer, err := utils.GetBestMovieTrailer(nextRecommendationIdInt)
-			if err != nil {
-				return c.String(http.StatusInternalServerError, err.Error())
-			}
-
-			return components.Recommendations(nextTrailer, recommendations.Results).Render(context.Background(), c.Response().Writer)
+			userLikes = slices.DeleteFunc(userLikes, func(like string) bool { return like == strconv.Itoa(recommendationId) })
+			userLikesCookie := utils.CreateUserLikesCookie(userLikes)
+			http.SetCookie(c.Response().Writer, userLikesCookie)
+			c.Response().Header().Set("HX-Redirect", nextRecommendationUrl)
+			return c.NoContent(http.StatusOK);
 		case "maybe":
-			idx := slices.Index(recommendationIds, strconv.Itoa(currentRecommendationId))
-			if idx == -1 {
-				// TODO: handle this better
-				return c.String(http.StatusInternalServerError, "Current recommendation not found")
-			}
-			nextRecommendationId := recommendationIds[idx+1]
-			nextRecommendationCookie := utils.CreateCurrentRecommendationCookie(nextRecommendationId)
-			http.SetCookie(c.Response().Writer, nextRecommendationCookie)
-
-			nextRecommendationIdInt, err := strconv.Atoi(nextRecommendationId)
-			if err != nil {
-				return c.String(http.StatusInternalServerError, err.Error())
-			}
-
-			recommendations, err := utils.GetMovieRecommendations(movieId)
-			if err != nil {
-				return c.String(http.StatusInternalServerError, err.Error())
-			}
-
-			// TODO: major problem. We don't want to fetch all these recommendations every time we run this endpoint.
-			// We need to preserve them somehow, but cookies aren't the right tool, because of limited space.
-			// THis will work for now because this is mocked out function but once it's not, we need to fix this.
-			nextTrailer, err := utils.GetBestMovieTrailer(nextRecommendationIdInt)
-			if err != nil {
-				return c.String(http.StatusInternalServerError, err.Error())
-			}
-
-			nextUserLikes := append(userLikes, strconv.Itoa(currentRecommendationId))
-			nextUserLikesCookie := utils.CreateUserLikesCookie(nextUserLikes)
-			http.SetCookie(c.Response().Writer, nextUserLikesCookie)
-
-			return components.Recommendations(nextTrailer, recommendations.Results).Render(context.Background(), c.Response().Writer)
+			userLikes = append(userLikes, strconv.Itoa(recommendationId));
+			userLikesCookie := utils.CreateUserLikesCookie(userLikes)
+			http.SetCookie(c.Response().Writer, userLikesCookie)
+			c.Response().Header().Set("HX-Redirect", nextRecommendationUrl)
+			return c.NoContent(http.StatusOK);
 		case "watch":
-			// movie, err := utils.GetMovie(currentRecommendationIdInt)
-			// if err != nil {
-			// 	return c.String(http.StatusInternalServerError, err.Error())
-			// }
-			// return components.Page(components.Watch(currentRecommendationId, recommendations.Results)).Render(context.Background(), c.Response().Writer)
+			// TODO: implement...
 			return nil;
 		}
 		return nil
@@ -148,36 +141,16 @@ func main() {
 			return c.String(http.StatusInternalServerError, err.Error())
 		}
 
-		recommendationIds := []string{}
+		recommendationIds := []int{}
 		for _, movie := range recommendations.Results {
-			recommendationIds = append(recommendationIds, strconv.Itoa(movie.Id))
+			recommendationIds = append(recommendationIds, movie.Id)
 		}
-
-		// Create cookies for recommendation tracking, if one doesn't already exist
-		if existingRecommendationIds, _ := utils.GetRecommendationIdsFromCookie(c); len(existingRecommendationIds) == 0 {
-			recommendationIdsCookie := utils.CreateRecommendationIdsCookie(recommendationIds)
-			http.SetCookie(c.Response().Writer, recommendationIdsCookie)
-		}
-
-		currentRecommendationId := recommendationIds[0]
-		currentRecommendationCookie := utils.CreateCurrentRecommendationCookie(currentRecommendationId)
-		http.SetCookie(c.Response().Writer, currentRecommendationCookie)
 
 		userLikesCookie := utils.CreateUserLikesCookie([]string{})
 		http.SetCookie(c.Response().Writer, userLikesCookie)
 
-		currentRecommendationIdInt, err := strconv.Atoi(currentRecommendationId)
-		if err != nil {
-			return c.String(http.StatusInternalServerError, err.Error())
-		}
-
-		trailer, err := utils.GetBestMovieTrailer(currentRecommendationIdInt)
-		if err != nil {
-			return c.String(http.StatusInternalServerError, err.Error())
-		}
-
-		component := components.Page(components.Recommendations(trailer, recommendations.Results))
-		return component.Render(context.Background(), c.Response().Writer)
+		recommendationUrl := "/movie/" + strconv.Itoa(movieId) + "/recommendations/" + strconv.Itoa(recommendationIds[0])
+		return c.Redirect(http.StatusSeeOther, recommendationUrl)
 	})
 
 	e.GET("/movies", func(c echo.Context) error {

@@ -56,5 +56,8 @@ func GetUserLikesFromCookie(c echo.Context) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
+	if cookie.Value == "" {
+		return []string{}, nil
+	}
 	return strings.Split(cookie.Value, ","), nil
 }

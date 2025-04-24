@@ -1,83 +1,125 @@
 package components
 
 import (
-    "strconv"
-	"github.com/mpcarolin/cinematch-server/internal/utils"
+	"github.com/mpcarolin/cinematch-server/internal/models"
+	"slices"
+	"strconv"
 )
 
-func GetSkipUrl(currentTrailer utils.Trailer) string {
-	return "/movie/" + strconv.Itoa(currentTrailer.MovieId) + "/recommendations/skip"
+func GetSkipUrl(context models.AppContext) string {
+	return "/movie/" + strconv.Itoa(context.MovieId) + "/recommendations/" + strconv.Itoa(context.Trailer.MovieId) + "/skip"
 }
 
-func GetMaybeUrl(currentTrailer utils.Trailer) string {
-	return "/movie/" + strconv.Itoa(currentTrailer.MovieId) + "/recommendations/maybe"
+func GetMaybeUrl(context models.AppContext) string {
+	return "/movie/" + strconv.Itoa(context.MovieId) + "/recommendations/" + strconv.Itoa(context.Trailer.MovieId) + "/maybe"
 }
 
-func GetWatchUrl(currentTrailer utils.Trailer) string {
-	return "/movie/" + strconv.Itoa(currentTrailer.MovieId) + "/recommendations/watch"
+func GetWatchUrl(context models.AppContext) string {
+	return "/movie/" + strconv.Itoa(context.MovieId) + "/recommendations/" + strconv.Itoa(context.Trailer.MovieId) + "/watch"
 }
 
-templ Recommendations(currentTrailer utils.Trailer, recommendations []utils.Movie) {
+func GetRecommendationUrl(context models.AppContext, recommendationId int) string {
+	return "/movie/" + strconv.Itoa(context.MovieId) + "/recommendations/" + strconv.Itoa(recommendationId)
+}
+
+func GetSummaryUrl(context models.AppContext) string {
+	return "/movie/" + strconv.Itoa(context.MovieId) + "/recommendations/review"
+}
+
+templ Recommendations(context models.AppContext) {
 	<div class="recommendations-container">
-		@RecommendationProgressBanner(currentTrailer, recommendations)
+		@RecommendationProgressBanner(context)
 		<h2 class="recommendations-title">Next Up</h2>
 		<div class="recommendations-trailer-buttons-container">
-			@YouTubeVideoEmbed(currentTrailer.Key, VideoConfig{ Autoplay: false })
+			@YouTubeVideoEmbed(context.Trailer.Key, VideoConfig{Autoplay: false})
 			<div class="recommendations-buttons">
 				<button
-					id="skip-button"
-					hx-put={GetSkipUrl(currentTrailer)}
+					id="maybe-button"
+					hx-put={ GetMaybeUrl(context) }
 					hx-target=".recommendations-container"
-                    hx-swap="outerHTML"
+					hx-swap="outerHTML"
+					data-tooltip="We'll mark this one for you, but keep watching trailers!"
+					data-placement="top"
+				>
+					<i class="iconoir-star-solid"></i>
+					Save
+				</button>
+				<button
+					id="skip-button"
+					hx-put={ GetSkipUrl(context) }
+					hx-target=".recommendations-container"
+					hx-swap="outerHTML"
 					data-tooltip="Move on to the next recommendation"
 					data-placement="top"
 				>
-                    <i class="iconoir-thumbs-down"></i>
+					<i class="iconoir-star-dashed"></i>
 					Skip
 				</button>
 				<button
-					id="maybe-button"
-					hx-put={GetMaybeUrl(currentTrailer)}
-					hx-target=".recommendations-container"
-                    hx-swap="outerHTML"
-					data-tooltip="We'll hold onto this one for you, but we will show you another trailer next."
-					data-placement="top"
-				>
-                    <i class="iconoir-thumbs-up"></i>
-					Maybe
-				</button>
-				<button
 					id="watch-button"
-					hx-put={GetWatchUrl(currentTrailer)}
+					hx-put={ GetWatchUrl(context) }
 					hx-target=".recommendations-container"
-                    hx-swap="outerHTML"
+					hx-swap="outerHTML"
 					data-tooltip="Stop watching trailers and see the streaming options for this one!"
 					data-placement="top"
 				>
-                    <i class="iconoir-movie"></i>
-                    Watch
+					<i class="iconoir-movie"></i>
+					Watch
 				</button>
 			</div>
 		</div>
 	</div>
 }
 
-templ RecommendationProgressBanner(currentTrailer utils.Trailer, recommendations []utils.Movie) {
-	<div class="recommendation-progress-banner">
-		for idx, movie := range recommendations {
-			{{ matchesMovie := movie.Id == currentTrailer.MovieId }}
-			<div class={ "recommendation-progress-banner-trailer" }>
-				<img
-					class={ "recommendation-progress-banner-trailer-poster",
-                        templ.KV("blur", !matchesMovie),
-                        templ.KV("active", matchesMovie) }
-					src={ movie.FullPosterURL() }
-					alt={ movie.Title }
-				/>
-			</div>
-			if idx < len(recommendations) - 1 {
-				<i class="recommendation-progress-banner-trailer-connector iconoir-git-commit"></i>
+func IsMovieLiked(context models.AppContext, recommendationId int) bool {
+	return slices.Contains(context.UserLikes, strconv.Itoa(recommendationId))
+}
+
+templ RecommendationProgressBanner(context models.AppContext) {
+	<nav class="recommendation-progress-nav">
+		<ul class="recommendation-progress-banner-list">
+			for idx, recommendation := range context.Recommendations {
+				{{ matchesMovie := recommendation.Id == context.Trailer.MovieId }}
+                {{ liked := IsMovieLiked(context, recommendation.Id) }}
+				<li class={ "recommendation-progress-banner-trailer-list-item" }>
+					<a href={ templ.SafeURL(GetRecommendationUrl(context, recommendation.Id)) }>
+						<div class="recommendation-progress-banner-trailer-list-item-poster-container">
+							<img
+								class={
+									"recommendation-progress-banner-trailer-poster",
+									templ.KV("blur", !matchesMovie && !liked),
+                                    templ.KV("liked", liked && !matchesMovie),
+									templ.KV("active", matchesMovie),
+								}
+								src={ recommendation.FullPosterURL() }
+								alt={ recommendation.Title }
+								title={ recommendation.Title }
+							/>
+                            if liked {
+                                <i class="iconoir-star-solid recommendation-progress-banner-trailer-like-icon"></i>
+                            }
+						</div>
+					</a>
+				</li>
+				if idx < len(context.Recommendations) - 1 {
+					<i class="recommendation-progress-banner-trailer-connector iconoir-git-commit"></i>
+				}
 			}
-		}
-	</div>
+
+            {{ enableSummary := len(context.UserLikes) >= 1 }}
+            {{ 
+                var summaryTooltip string
+                if enableSummary {
+                    summaryTooltip = "Review your saved movies"
+                } else {
+                    summaryTooltip = "Like at least one movie to review"
+                }
+            }}
+            <i class="recommendation-progress-banner-trailer-connector iconoir-git-commit"></i>
+            <li title={summaryTooltip} class={"recommendation-progress-banner-trailer-list-item summary-item", templ.KV("disabled", !enableSummary)}>
+                <i hx-get={ GetSummaryUrl(context)} hx-target="main" hx-swap="innerHTML" class="iconoir-page-star summary-icon"></i>
+                <small>Review</small>
+            </li>
+		</ul>
+	</nav>
 }

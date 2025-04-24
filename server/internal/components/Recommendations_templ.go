@@ -9,23 +9,32 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"github.com/mpcarolin/cinematch-server/internal/utils"
+	"github.com/mpcarolin/cinematch-server/internal/models"
+	"slices"
 	"strconv"
 )
 
-func GetSkipUrl(currentTrailer utils.Trailer) string {
-	return "/movie/" + strconv.Itoa(currentTrailer.MovieId) + "/recommendations/skip"
+func GetSkipUrl(context models.AppContext) string {
+	return "/movie/" + strconv.Itoa(context.MovieId) + "/recommendations/" + strconv.Itoa(context.Trailer.MovieId) + "/skip"
 }
 
-func GetMaybeUrl(currentTrailer utils.Trailer) string {
-	return "/movie/" + strconv.Itoa(currentTrailer.MovieId) + "/recommendations/maybe"
+func GetMaybeUrl(context models.AppContext) string {
+	return "/movie/" + strconv.Itoa(context.MovieId) + "/recommendations/" + strconv.Itoa(context.Trailer.MovieId) + "/maybe"
 }
 
-func GetWatchUrl(currentTrailer utils.Trailer) string {
-	return "/movie/" + strconv.Itoa(currentTrailer.MovieId) + "/recommendations/watch"
+func GetWatchUrl(context models.AppContext) string {
+	return "/movie/" + strconv.Itoa(context.MovieId) + "/recommendations/" + strconv.Itoa(context.Trailer.MovieId) + "/watch"
 }
 
-func Recommendations(currentTrailer utils.Trailer, recommendations []utils.Movie) templ.Component {
+func GetRecommendationUrl(context models.AppContext, recommendationId int) string {
+	return "/movie/" + strconv.Itoa(context.MovieId) + "/recommendations/" + strconv.Itoa(recommendationId)
+}
+
+func GetSummaryUrl(context models.AppContext) string {
+	return "/movie/" + strconv.Itoa(context.MovieId) + "/recommendations/review"
+}
+
+func Recommendations(context models.AppContext) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -50,7 +59,7 @@ func Recommendations(currentTrailer utils.Trailer, recommendations []utils.Movie
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = RecommendationProgressBanner(currentTrailer, recommendations).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = RecommendationProgressBanner(context).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -58,44 +67,44 @@ func Recommendations(currentTrailer utils.Trailer, recommendations []utils.Movie
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = YouTubeVideoEmbed(currentTrailer.Key, VideoConfig{Autoplay: false}).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = YouTubeVideoEmbed(context.Trailer.Key, VideoConfig{Autoplay: false}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"recommendations-buttons\"><button id=\"skip-button\" hx-put=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"recommendations-buttons\"><button id=\"maybe-button\" hx-put=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
-		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(GetSkipUrl(currentTrailer))
+		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(GetMaybeUrl(context))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/components/Recommendations.templ`, Line: 29, Col: 39}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/components/Recommendations.templ`, Line: 38, Col: 34}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" hx-target=\".recommendations-container\" hx-swap=\"outerHTML\" data-tooltip=\"Move on to the next recommendation\" data-placement=\"top\"><i class=\"iconoir-thumbs-down\"></i> Skip</button> <button id=\"maybe-button\" hx-put=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" hx-target=\".recommendations-container\" hx-swap=\"outerHTML\" data-tooltip=\"We&#39;ll mark this one for you, but keep watching trailers!\" data-placement=\"top\"><i class=\"iconoir-star-solid\"></i> Save</button> <button id=\"skip-button\" hx-put=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var3 string
-		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(GetMaybeUrl(currentTrailer))
+		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(GetSkipUrl(context))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/components/Recommendations.templ`, Line: 40, Col: 40}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/components/Recommendations.templ`, Line: 49, Col: 33}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" hx-target=\".recommendations-container\" hx-swap=\"outerHTML\" data-tooltip=\"We&#39;ll hold onto this one for you, but we will show you another trailer next.\" data-placement=\"top\"><i class=\"iconoir-thumbs-up\"></i> Maybe</button> <button id=\"watch-button\" hx-put=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" hx-target=\".recommendations-container\" hx-swap=\"outerHTML\" data-tooltip=\"Move on to the next recommendation\" data-placement=\"top\"><i class=\"iconoir-star-dashed\"></i> Skip</button> <button id=\"watch-button\" hx-put=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var4 string
-		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(GetWatchUrl(currentTrailer))
+		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(GetWatchUrl(context))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/components/Recommendations.templ`, Line: 51, Col: 40}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/components/Recommendations.templ`, Line: 60, Col: 34}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -109,7 +118,11 @@ func Recommendations(currentTrailer utils.Trailer, recommendations []utils.Movie
 	})
 }
 
-func RecommendationProgressBanner(currentTrailer utils.Trailer, recommendations []utils.Movie) templ.Component {
+func IsMovieLiked(context models.AppContext, recommendationId int) bool {
+	return slices.Contains(context.UserLikes, strconv.Itoa(recommendationId))
+}
+
+func RecommendationProgressBanner(context models.AppContext) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -130,18 +143,19 @@ func RecommendationProgressBanner(currentTrailer utils.Trailer, recommendations 
 			templ_7745c5c3_Var5 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"recommendation-progress-banner\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<nav class=\"recommendation-progress-nav\"><ul class=\"recommendation-progress-banner-list\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		for idx, movie := range recommendations {
-			matchesMovie := movie.Id == currentTrailer.MovieId
-			var templ_7745c5c3_Var6 = []any{"recommendation-progress-banner-trailer"}
+		for idx, recommendation := range context.Recommendations {
+			matchesMovie := recommendation.Id == context.Trailer.MovieId
+			liked := IsMovieLiked(context, recommendation.Id)
+			var templ_7745c5c3_Var6 = []any{"recommendation-progress-banner-trailer-list-item"}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var6...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div class=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<li class=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -154,68 +168,159 @@ func RecommendationProgressBanner(currentTrailer utils.Trailer, recommendations 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\"><a href=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var8 = []any{"recommendation-progress-banner-trailer-poster",
-				templ.KV("blur", !matchesMovie),
-				templ.KV("active", matchesMovie)}
-			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var8...)
+			var templ_7745c5c3_Var8 templ.SafeURL = templ.SafeURL(GetRecommendationUrl(context, recommendation.Id))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var8)))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<img class=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\"><div class=\"recommendation-progress-banner-trailer-list-item-poster-container\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var9 string
-			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(templ.CSSClasses(templ_7745c5c3_Var8).String())
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/components/Recommendations.templ`, Line: 1, Col: 0}
+			var templ_7745c5c3_Var9 = []any{
+				"recommendation-progress-banner-trailer-poster",
+				templ.KV("blur", !matchesMovie && !liked),
+				templ.KV("liked", liked && !matchesMovie),
+				templ.KV("active", matchesMovie),
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var9...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" src=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<img class=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var10 string
-			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(movie.FullPosterURL())
+			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(templ.CSSClasses(templ_7745c5c3_Var9).String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/components/Recommendations.templ`, Line: 74, Col: 32}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/components/Recommendations.templ`, Line: 1, Col: 0}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" alt=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" src=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var11 string
-			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(movie.Title)
+			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(recommendation.FullPosterURL())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/components/Recommendations.templ`, Line: 75, Col: 22}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/components/Recommendations.templ`, Line: 94, Col: 44}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\"></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\" alt=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if idx < len(recommendations)-1 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<i class=\"recommendation-progress-banner-trailer-connector iconoir-git-commit\"></i>")
+			var templ_7745c5c3_Var12 string
+			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(recommendation.Title)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/components/Recommendations.templ`, Line: 95, Col: 34}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" title=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var13 string
+			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(recommendation.Title)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/components/Recommendations.templ`, Line: 96, Col: 36}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\"> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if liked {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<i class=\"iconoir-star-solid recommendation-progress-banner-trailer-like-icon\"></i>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div></a></li>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if idx < len(context.Recommendations)-1 {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<i class=\"recommendation-progress-banner-trailer-connector iconoir-git-commit\"></i>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div>")
+		enableSummary := len(context.UserLikes) >= 1
+
+		var summaryTooltip string
+		if enableSummary {
+			summaryTooltip = "Review your saved movies"
+		} else {
+			summaryTooltip = "Like at least one movie to review"
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<i class=\"recommendation-progress-banner-trailer-connector iconoir-git-commit\"></i>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var14 = []any{"recommendation-progress-banner-trailer-list-item summary-item", templ.KV("disabled", !enableSummary)}
+		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var14...)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<li title=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var15 string
+		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(summaryTooltip)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/components/Recommendations.templ`, Line: 119, Col: 37}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\" class=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var16 string
+		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(templ.CSSClasses(templ_7745c5c3_Var14).String())
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/components/Recommendations.templ`, Line: 1, Col: 0}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\"><i hx-get=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var17 string
+		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(GetSummaryUrl(context))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/components/Recommendations.templ`, Line: 120, Col: 50}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\" hx-target=\"main\" hx-swap=\"innerHTML\" class=\"iconoir-page-star summary-icon\"></i> <small>Review</small></li></ul></nav>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
