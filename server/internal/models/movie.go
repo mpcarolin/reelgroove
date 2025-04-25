@@ -27,7 +27,7 @@ func (m Movie) RecommendationURL() string {
 	return "/movie/" + strconv.Itoa(m.Id) + "/recommendations"
 }
 
-type MovieResponse struct {
+type MovieSearchResponse struct {
 	Page         int `json:"page"`
 	Results      []Movie `json:"results"`
 	TotalPages   int `json:"total_pages"`
