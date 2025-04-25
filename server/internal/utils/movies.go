@@ -1,82 +1,84 @@
 package utils
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
-	"log"
+	"fmt"
+	"log/slog"
 	"slices"
-	"strconv"
+	"time"
+
+	store "github.com/eko/gocache/lib/v4/store"
+	"github.com/mpcarolin/cinematch-server/internal/models"
 )
 
-type Movie struct {
-	Adult           bool    `json:"adult"`
-	BackdropPath    string  `json:"backdrop_path"`
-	GenreIds        []int   `json:"genre_ids"`
-	Id              int     `json:"id"`
-	OriginalLanguage string  `json:"original_language"`
-	OriginalTitle   string  `json:"original_title"`
-	Overview        string  `json:"overview"`
-	Popularity      float64 `json:"popularity"`
-	Poster          string  `json:"poster_path"`
-	ReleaseDate     string  `json:"release_date"`
-	Title           string  `json:"title"`
-	Video           bool    `json:"video"`
-	VoteAverage     float64 `json:"vote_average"`
-	VoteCount       int     `json:"vote_count"`
-}
+// Movie-related structs have been moved to models/movie.go
 
-func (m Movie) FullPosterURL() string {
-	return "https://image.tmdb.org/t/p/w500/" + m.Poster
-}
-
-func (m Movie) RecommendationURL() string {
-	return "/movie/" + strconv.Itoa(m.Id) + "/recommendations"
-}
-
-type MovieResponse struct {
-	Page         int `json:"page"`
-	Results      []Movie `json:"results"`
-	TotalPages   int `json:"total_pages"`
-	TotalResults int `json:"total_results"`
-}
-
-type RecommendationResponse struct {
-	Page         int `json:"page"`
-	Results      []Movie `json:"results"`
-	TotalPages   int `json:"total_pages"`
-	TotalResults int `json:"total_results"`
-}
-
-func MovieMeetsUsageCriteria(movie Movie) bool {
+func MovieMeetsUsageCriteria(movie models.Movie) bool {
 	return movie.Poster != "" && movie.Popularity > 1 && movie.VoteAverage > 2 && movie.VoteCount > 25
 }
 
-func SearchMovies(search string) (MovieResponse, error) {
-	var response MovieResponse
+func SearchMovies(search string) (models.MovieResponse, error) {
+	cache := GetCache()
+	cacheKey := fmt.Sprintf("search_movies_%s", search)
+	if cachedResponse, cacheErr := cache.Get(context.Background(), cacheKey); cacheErr == nil {
+		var response models.MovieResponse
+		err := json.Unmarshal([]byte(cachedResponse), &response)
+		if err != nil {
+			slog.Error("error unmarshalling cached search response", "error", err)
+			return models.MovieResponse{}, err
+		}
+		slog.Info("cache hit", "key", cacheKey, "value", response)
+		return response, nil
+	} else {
+		slog.Error("error getting cached search response", "error", cacheErr)
+	}
+
+	var response models.MovieResponse
 	err := json.Unmarshal([]byte(MockSearchResponse), &response)
 	if err != nil {
-		return MovieResponse{}, err
+		slog.Error("error unmarshalling mock search response", "error", err)
+		return models.MovieResponse{}, err
 	}
 
 	// remove movies with no poster, low popularity, low vote average, low vote count, no video, or is adult
 	// TODO: might look into filtering these out at the request level
-	filteredResults := []Movie{}
+	filteredResults := []models.Movie{}
 	for _, movie := range response.Results {
-		log.Printf("movie: %+v", movie)
 		if MovieMeetsUsageCriteria(movie) { 
 			filteredResults = append(filteredResults, movie)
 		}
 	}
 
 	response.Results = filteredResults
-	return response, nil
-} 
 
-func GetMovieRecommendations(movieId int) (RecommendationResponse, error) {
-	recommendations := RecommendationResponse{}
+	// TODO: could make this a go routine?
+	serializedResponse, err := json.Marshal(response)
+	if err != nil {
+		slog.Error("error marshalling search response for storing in cache", "error", err)
+		return models.MovieResponse{}, err
+	}
+	cacheSetErr := cache.Set(
+		context.Background(),
+		cacheKey,
+		string(serializedResponse),
+		store.WithExpiration(24*time.Hour),
+	)
+	if cacheSetErr != nil {
+		slog.Error("error setting cache", "error", cacheSetErr)
+	} else {
+		slog.Info("cache set", "key", cacheKey, "value", string(serializedResponse))
+	}
+
+	return response, nil
+}
+
+func GetMovieRecommendations(movieId int) (models.RecommendationResponse, error) {
+	recommendations := models.RecommendationResponse{}
 	json.Unmarshal([]byte(MockRecommendationsResponse), &recommendations)
 
-	filteredResults := []Movie{}
+	filteredResults := []models.Movie{}
 	for _, movie := range recommendations.Results {
 		if MovieMeetsUsageCriteria(movie) { 
 			filteredResults = append(filteredResults, movie)
@@ -88,25 +90,11 @@ func GetMovieRecommendations(movieId int) (RecommendationResponse, error) {
 	return recommendations, nil
 }
 
-type Trailer struct {
-	ISO6391 string `json:"iso_639_1"`
-	ISO31661 string `json:"iso_3166_1"`
-	Name string `json:"name"`
-	Key string `json:"key"`
-	Site string `json:"site"`
-	Size int `json:"size"`
-	Type string `json:"type"`
-	Official bool `json:"official"`
-	PublishedAt string `json:"published_at"`
-	Id string `json:"id"`
-	MovieId int
-}
-	
-func GetBestMovieTrailer(movieId int) (Trailer, error) {
-	trailers := []Trailer{}
+func GetBestMovieTrailer(movieId int) (models.Trailer, error) {
+	trailers := []models.Trailer{}
 	json.Unmarshal([]byte(MockTrailersResponse), &trailers)
 
-	filteredTrailers := []Trailer{}
+	filteredTrailers := []models.Trailer{}
 	for _, trailer := range trailers {
 		if trailer.Site == "YouTube" {
 			trailer.MovieId = movieId
@@ -114,7 +102,7 @@ func GetBestMovieTrailer(movieId int) (Trailer, error) {
 		}
 	}
 
-	slices.SortFunc(filteredTrailers, func(a, b Trailer) int {
+	slices.SortFunc(filteredTrailers, func(a, b models.Trailer) int {
 		if a.Type == "Trailer" && b.Type != "Trailer" {
 			return -1;
 		} else if a.Type != "Trailer" && b.Type == "Trailer" {
@@ -132,6 +120,6 @@ func GetBestMovieTrailer(movieId int) (Trailer, error) {
 		return filteredTrailers[0], nil
 	}
 
-	return Trailer{}, errors.New("no trailers found")
+	return models.Trailer{}, errors.New("no trailers found")
 }
 

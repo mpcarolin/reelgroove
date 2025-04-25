@@ -15,6 +15,7 @@ import (
 
 	"github.com/mpcarolin/cinematch-server/internal/components"
 	"github.com/mpcarolin/cinematch-server/internal/constants/env"
+	"github.com/mpcarolin/cinematch-server/internal/middleware"
 	"github.com/mpcarolin/cinematch-server/internal/models"
 	"github.com/mpcarolin/cinematch-server/internal/utils"
 )
@@ -30,6 +31,9 @@ func main() {
 	e.Use(echoMiddleware.Recover())
 	e.Use(echoMiddleware.RateLimiter(echoMiddleware.NewRateLimiterMemoryStore(20)))
 	e.Use(echoMiddleware.CORSWithConfig(utils.GetCORSConfig()))
+
+
+	e.Use(middleware.SetupRequestContext)
 
 	// Routes
 	e.GET("/status", func(c echo.Context) error {
@@ -73,7 +77,7 @@ func main() {
 		slog.Info("userLikes", "userLikes", userLikes)
 
 		return components.Page(
-			components.Recommendations(models.AppContext{
+			components.Recommendations(models.TemplateContext{
 				MovieId: movieId,
 				Trailer: nextTrailer,
 				Recommendations: recommendations.Results,
@@ -105,7 +109,7 @@ func main() {
 			return c.String(http.StatusInternalServerError, err.Error())
 		}
 
-		currentRecommendationIndex := slices.IndexFunc(recommendations.Results, func(recommendation utils.Movie) bool { return recommendation.Id == recommendationId })
+		currentRecommendationIndex := slices.IndexFunc(recommendations.Results, func(recommendation models.Movie) bool { return recommendation.Id == recommendationId })
 		nextRecommendationIndex := math.Min(float64(currentRecommendationIndex + 1), float64(len(recommendations.Results) - 1));
 		nextRecommendationId := recommendations.Results[int(nextRecommendationIndex)].Id
 
@@ -160,7 +164,7 @@ func main() {
 			return c.String(http.StatusInternalServerError, err.Error())
 		}
 		movies := response.Results
-		searchResults := []utils.Movie{}
+		searchResults := []models.Movie{}
 		for _, movie := range movies {
 			if strings.Contains(strings.ToLower(movie.Title), strings.ToLower(search)) {
 				searchResults = append(searchResults, movie)
@@ -171,6 +175,11 @@ func main() {
 
 		time.Sleep(1 * time.Second) // 1 second delay for testing
 
+		return component.Render(context.Background(), c.Response().Writer)
+	})
+
+	e.GET("/about", func(c echo.Context) error {
+		component := components.Page(components.About())
 		return component.Render(context.Background(), c.Response().Writer)
 	})
 

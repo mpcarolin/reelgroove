@@ -6,27 +6,27 @@ import (
 	"strconv"
 )
 
-func GetSkipUrl(context models.AppContext) string {
+func GetSkipUrl(context models.TemplateContext) string {
 	return "/movie/" + strconv.Itoa(context.MovieId) + "/recommendations/" + strconv.Itoa(context.Trailer.MovieId) + "/skip"
 }
 
-func GetMaybeUrl(context models.AppContext) string {
+func GetMaybeUrl(context models.TemplateContext) string {
 	return "/movie/" + strconv.Itoa(context.MovieId) + "/recommendations/" + strconv.Itoa(context.Trailer.MovieId) + "/maybe"
 }
 
-func GetWatchUrl(context models.AppContext) string {
+func GetWatchUrl(context models.TemplateContext) string {
 	return "/movie/" + strconv.Itoa(context.MovieId) + "/recommendations/" + strconv.Itoa(context.Trailer.MovieId) + "/watch"
 }
 
-func GetRecommendationUrl(context models.AppContext, recommendationId int) string {
+func GetRecommendationUrl(context models.TemplateContext, recommendationId int) string {
 	return "/movie/" + strconv.Itoa(context.MovieId) + "/recommendations/" + strconv.Itoa(recommendationId)
 }
 
-func GetSummaryUrl(context models.AppContext) string {
+func GetSummaryUrl(context models.TemplateContext) string {
 	return "/movie/" + strconv.Itoa(context.MovieId) + "/recommendations/review"
 }
 
-templ Recommendations(context models.AppContext) {
+templ Recommendations(context models.TemplateContext) {
 	<div class="recommendations-container">
 		@RecommendationProgressBanner(context)
 		<h2 class="recommendations-title">Next Up</h2>
@@ -71,11 +71,11 @@ templ Recommendations(context models.AppContext) {
 	</div>
 }
 
-func IsMovieLiked(context models.AppContext, recommendationId int) bool {
+func IsMovieLiked(context models.TemplateContext, recommendationId int) bool {
 	return slices.Contains(context.UserLikes, strconv.Itoa(recommendationId))
 }
 
-templ RecommendationProgressBanner(context models.AppContext) {
+templ RecommendationProgressBanner(context models.TemplateContext) {
 	<nav class="recommendation-progress-nav">
 		<ul class="recommendation-progress-banner-list">
 			for idx, recommendation := range context.Recommendations {

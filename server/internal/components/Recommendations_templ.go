@@ -14,27 +14,27 @@ import (
 	"strconv"
 )
 
-func GetSkipUrl(context models.AppContext) string {
+func GetSkipUrl(context models.TemplateContext) string {
 	return "/movie/" + strconv.Itoa(context.MovieId) + "/recommendations/" + strconv.Itoa(context.Trailer.MovieId) + "/skip"
 }
 
-func GetMaybeUrl(context models.AppContext) string {
+func GetMaybeUrl(context models.TemplateContext) string {
 	return "/movie/" + strconv.Itoa(context.MovieId) + "/recommendations/" + strconv.Itoa(context.Trailer.MovieId) + "/maybe"
 }
 
-func GetWatchUrl(context models.AppContext) string {
+func GetWatchUrl(context models.TemplateContext) string {
 	return "/movie/" + strconv.Itoa(context.MovieId) + "/recommendations/" + strconv.Itoa(context.Trailer.MovieId) + "/watch"
 }
 
-func GetRecommendationUrl(context models.AppContext, recommendationId int) string {
+func GetRecommendationUrl(context models.TemplateContext, recommendationId int) string {
 	return "/movie/" + strconv.Itoa(context.MovieId) + "/recommendations/" + strconv.Itoa(recommendationId)
 }
 
-func GetSummaryUrl(context models.AppContext) string {
+func GetSummaryUrl(context models.TemplateContext) string {
 	return "/movie/" + strconv.Itoa(context.MovieId) + "/recommendations/review"
 }
 
-func Recommendations(context models.AppContext) templ.Component {
+func Recommendations(context models.TemplateContext) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -118,11 +118,11 @@ func Recommendations(context models.AppContext) templ.Component {
 	})
 }
 
-func IsMovieLiked(context models.AppContext, recommendationId int) bool {
+func IsMovieLiked(context models.TemplateContext, recommendationId int) bool {
 	return slices.Contains(context.UserLikes, strconv.Itoa(recommendationId))
 }
 
-func RecommendationProgressBanner(context models.AppContext) templ.Component {
+func RecommendationProgressBanner(context models.TemplateContext) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {

@@ -2,7 +2,7 @@ package components
 
 templ MovieSearch() {
 	<div>
-		<h2>To start, search for a movie</h2>
+		<h2>To start, tell us a movie you like</h2>
         <p>We'll use it to make our recommendations for trailers to watch</p>
 		<form
 			hx-get="/movies"
@@ -10,9 +10,10 @@ templ MovieSearch() {
 			hx-indicator="#search-results-indicator"
             hx-on:submit="clearMovieSearch()"
 			hx-swap="innerHTML"
+            role="search"
 		>
             <input type="search" id="search" name="search" placeholder="Search for one of your favorites..."/>
-            <button type="submit" hidden />
+            <input type="submit" value="Search" />
 		</form>
 		<table id="search-results" />
         <div id="search-results-indicator" class="htmx-indicator">
