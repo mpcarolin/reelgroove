@@ -15,6 +15,8 @@ import (
 
 // Renders the recommendations page for a single movie in the recommendations list
 func GetSingleRecommendation(c echo.Context) error {
+	ctx := c.(*models.RequestContext)
+
 	// Parse query params
 	movieId, err := strconv.Atoi(c.Param("movieId"))
 	if err != nil {
@@ -27,13 +29,16 @@ func GetSingleRecommendation(c echo.Context) error {
 	}
 
 	// Call api endpoints for movie data
-	recommendations, err := utils.GetMovieRecommendations(movieId)
+	recommendations, err := utils.GetMovieRecommendationsCached(ctx.Cache, movieId)
 	if err != nil {
+		// TODO: if there are no recommendations, we should display a ui indicating user should try a different base movie
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
-	nextTrailer, err := utils.GetBestMovieTrailer(recommendationId)
+	nextTrailer, err := utils.GetBestMovieTrailerCached(ctx.Cache, recommendationId)
 	if err != nil {
+		// TODO: in this case, there are no trailers for the movie, so we need to 
+		// perhaps remove this recommendation from the list!
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
@@ -57,12 +62,14 @@ func GetSingleRecommendation(c echo.Context) error {
 
 // Fetches all the recommendations for a movie, and redirects to the first recommendation
 func GetRecommendations(c echo.Context) error {
+	ctx := c.(*models.RequestContext)
+
 	movieId, err := strconv.Atoi(c.Param("movieId"))
 	if err != nil {
 		return c.String(http.StatusBadRequest, "Invalid movie id")
 	}
 
-	recommendations, err := utils.GetMovieRecommendations(movieId)
+	recommendations, err := utils.GetMovieRecommendationsCached(ctx.Cache, movieId)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -82,6 +89,8 @@ func GetRecommendations(c echo.Context) error {
 // Handles the action of a recommendation, either skipping, maybe, or watching
 // Updates the user likes cookie, and redirects to the next recommendation
 func HandleRecommendationAction(c echo.Context) error {
+	ctx := c.(*models.RequestContext)
+
 	movieId, err := strconv.Atoi(c.Param("movieId"))
 	if err != nil {
 		return c.String(http.StatusBadRequest, "Invalid movie id")
@@ -99,7 +108,7 @@ func HandleRecommendationAction(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
-	recommendations, err := utils.GetMovieRecommendations(movieId)
+	recommendations, err := utils.GetMovieRecommendationsCached(ctx.Cache, movieId)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}

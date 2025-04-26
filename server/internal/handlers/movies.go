@@ -5,7 +5,6 @@ import (
 	"log/slog"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/mpcarolin/cinematch-server/internal/components"
@@ -26,7 +25,7 @@ func GetMovieSearchResults(c echo.Context) error {
 
 	response, err := utils.SearchMoviesCached(ctx.Cache, searchQuery)
 	if err != nil {
-		slog.Error("GetMovieSearchResults>SearchMoviesCached", "error", err)
+		slog.Error("Error fetching movie search results", "error", err)
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 	movies := response.Results
@@ -38,8 +37,6 @@ func GetMovieSearchResults(c echo.Context) error {
 	}
 
 	component := components.MovieResults(searchResults)
-
-	time.Sleep(500 * time.Millisecond) // 1 second delay for testing
 
 	return component.Render(context.Background(), c.Response().Writer)
 }

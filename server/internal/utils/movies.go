@@ -2,7 +2,9 @@ package utils
 
 import (
 	"encoding/json"
+	"fmt"
 	"log/slog"
+	"time"
 
 	"github.com/eko/gocache/lib/v4/cache"
 	"github.com/mpcarolin/cinematch-server/internal/models"
@@ -13,19 +15,11 @@ func MovieMeetsUsageCriteria(movie models.Movie) bool {
 }
 
 func SearchMoviesCached(cache *cache.Cache[string], search string) (*models.MovieSearchResponse, error) {
-	cachedResponse, err := GetMovieSearchFromCache(cache, search)
-	if cachedResponse != nil && err == nil {
-		return cachedResponse, nil
+	cacheKey := fmt.Sprintf("movie_search_%s", search)
+	fetch := func(searchKey string) (*models.MovieSearchResponse, error) {
+		return SearchMovies(searchKey)
 	}
-
-	response, err := SearchMovies(search)
-	if err != nil {
-		return nil, err
-	}
-
-	go StoreMovieSearchResultsInCache(cache, search, response)
-
-	return response, nil
+	return WithCache(cache, cacheKey, fetch, 24*time.Hour);
 }
 
 func SearchMovies(search string) (*models.MovieSearchResponse, error) {
@@ -46,6 +40,8 @@ func SearchMovies(search string) (*models.MovieSearchResponse, error) {
 	}
 
 	response.Results = filteredResults
+
+	time.Sleep(2000 * time.Millisecond) // 2 second delay for testing
 
 	return &response, nil
 }

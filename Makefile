@@ -3,3 +3,6 @@ dev:
 
 templ:
 	cd server && make templ
+
+dlv:
+	cd server && /Users/mpcarolin/go/bin/dlv debug
