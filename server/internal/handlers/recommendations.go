@@ -118,20 +118,35 @@ func HandleRecommendationAction(c echo.Context) error {
 	nextRecommendationIndex := math.Min(float64(currentRecommendationIndex+1), float64(len(recommendations.Results)-1))
 	nextRecommendationId := recommendations.Results[int(nextRecommendationIndex)].Id
 
-	nextRecommendationUrl := "/movie/" + strconv.Itoa(movieId) + "/recommendations/" + strconv.Itoa(nextRecommendationId)
 	switch action {
 	case "skip":
 		userLikes = slices.DeleteFunc(userLikes, func(like string) bool { return like == strconv.Itoa(recommendationId) })
 		userLikesCookie := utils.CreateUserLikesCookie(userLikes)
 		http.SetCookie(c.Response().Writer, userLikesCookie)
-		c.Response().Header().Set("HX-Redirect", nextRecommendationUrl)
-		return c.NoContent(http.StatusOK)
+		nextTrailer, err := services.GetBestMovieTrailerCached(ctx.Cache, nextRecommendationId)
+		if err != nil {
+			return c.String(http.StatusInternalServerError, err.Error())
+		}
+		return components.Recommendations(models.TemplateContext{
+			MovieId:         movieId,
+			Trailer:         nextTrailer,
+			Recommendations: recommendations.Results,
+			UserLikes:       userLikes,
+		}).Render(context.Background(), c.Response().Writer)
 	case "maybe":
 		userLikes = append(userLikes, strconv.Itoa(recommendationId))
 		userLikesCookie := utils.CreateUserLikesCookie(userLikes)
 		http.SetCookie(c.Response().Writer, userLikesCookie)
-		c.Response().Header().Set("HX-Redirect", nextRecommendationUrl)
-		return c.NoContent(http.StatusOK)
+		nextTrailer, err := services.GetBestMovieTrailerCached(ctx.Cache, nextRecommendationId)
+		if err != nil {
+			return c.String(http.StatusInternalServerError, err.Error())
+		}
+		return components.Recommendations(models.TemplateContext{
+			MovieId:         movieId,
+			Trailer:         nextTrailer,
+			Recommendations: recommendations.Results,
+			UserLikes:       userLikes,
+		}).Render(context.Background(), c.Response().Writer)
 	case "watch":
 		// TODO: implement...
 		return nil

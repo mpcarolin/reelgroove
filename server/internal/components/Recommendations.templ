@@ -4,6 +4,7 @@ import (
 	"github.com/mpcarolin/cinematch-server/internal/models"
 	"slices"
 	"strconv"
+    "math"
 )
 
 func GetSkipUrl(context models.TemplateContext) string {
@@ -22,6 +23,14 @@ func GetRecommendationUrl(context models.TemplateContext, recommendationId int) 
 	return "/movie/" + strconv.Itoa(context.MovieId) + "/recommendations/" + strconv.Itoa(recommendationId)
 }
 
+// TODO: move all these to utils or something, and also reuse this one with the skip/maybe action?
+func GetNextRecommendationUrl(context models.TemplateContext) string {
+    currentRecommendationIndex := slices.IndexFunc(context.Recommendations, func(recommendation models.Movie) bool { return recommendation.Id == context.Trailer.MovieId })
+    nextRecommendationIndex := math.Min(float64(currentRecommendationIndex+1), float64(len(context.Recommendations)-1))
+    nextRecommendationId := context.Recommendations[int(nextRecommendationIndex)].Id
+	return "/movie/" + strconv.Itoa(context.MovieId) + "/recommendations/" + strconv.Itoa(nextRecommendationId)
+}
+
 func GetSummaryUrl(context models.TemplateContext) string {
 	return "/movie/" + strconv.Itoa(context.MovieId) + "/recommendations/review"
 }
@@ -36,6 +45,7 @@ templ Recommendations(context models.TemplateContext) {
 					hx-put={ GetMaybeUrl(context) }
 					hx-target=".recommendations-container"
 					hx-swap="outerHTML"
+                    hx-push-url={GetNextRecommendationUrl(context)}
 					data-tooltip="We'll mark this one for you, but keep watching trailers!"
 					data-placement="top"
 				>
