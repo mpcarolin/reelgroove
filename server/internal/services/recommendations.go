@@ -12,7 +12,7 @@ import (
 
 func GetMovieRecommendationsCached(cache *cache.Cache[string], movieId int) (*models.RecommendationResponse, error) {
 	cacheKey := fmt.Sprintf("movie_recommendations_%d", movieId)
-	fetch := func(key string) (*models.RecommendationResponse, error) {
+	fetch := func() (*models.RecommendationResponse, error) {
 		return GetMovieRecommendations(movieId)
 	}
 	return utils.WithCache(cache, cacheKey, fetch, 24*time.Hour);

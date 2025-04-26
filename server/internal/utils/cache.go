@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log/slog"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/eko/gocache/lib/v4/cache"
@@ -14,7 +15,7 @@ import (
 )
 
 // CacheableData represents any function that fetches data and might return an error
-type CacheableData[K comparable, V any] func(key K) (V, error)
+type CacheableData[K comparable, V any] func() (V, error)
 
 func Serialize[V any](data V) (string, error) {
 	serializedData, err := json.Marshal(data)
@@ -76,7 +77,7 @@ func WithCache[K comparable, V any](
 
 	// Cache miss - fetch fresh data
 	slog.Info("cache miss", "key", key)
-	data, err := fetch(key)
+	data, err := fetch()
 	if err != nil {
 		slog.Error("error fetching data", "error", err)
 		return nil, err
@@ -86,6 +87,10 @@ func WithCache[K comparable, V any](
 	go StoreInCache(cache, key, data, ttl)
 
 	return data, nil
+}
+
+func FormatCacheKey(key string) string {
+	return strings.ToLower(strings.ReplaceAll(strings.Trim(key, " "), " ", "_"))
 }
 
 func GetCache() *cache.Cache[string] {

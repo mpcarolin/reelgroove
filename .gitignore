@@ -40,3 +40,7 @@ Thumbs.db
 # Build output
 dist/
 build/ 
+
+server/__debug*
+server/tmp/*
+server/tmp

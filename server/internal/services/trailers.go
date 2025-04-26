@@ -14,7 +14,7 @@ import (
 
 func GetBestMovieTrailerCached(cache *cache.Cache[string], movieId int) (*models.Trailer, error) {
 	cacheKey := fmt.Sprintf("movie_trailer_%d", movieId)
-	fetch := func(key string) (*models.Trailer, error) {
+	fetch := func() (*models.Trailer, error) {
 		return GetBestMovieTrailer(movieId)
 	}
 	return utils.WithCache(cache, cacheKey, fetch, 24*time.Hour)

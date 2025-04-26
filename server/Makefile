@@ -5,4 +5,7 @@ templ-dev:
 	go tool templ generate -watch
 
 dev:
-	/Users/mpcarolin/go/bin/air .
+	set -a; source .env; set +a; /Users/mpcarolin/go/bin/air .
+
+dlv:
+	set -a; source .env; set +a; /Users/mpcarolin/go/bin/dlv debug .

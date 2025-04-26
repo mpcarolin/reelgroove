@@ -3,24 +3,31 @@ package components
 templ MovieSearch() {
 	<div>
 		<h2>To start, tell us a movie you like</h2>
-        <p>We'll use it to make our recommendations for trailers to watch</p>
+		<p>We'll use it to make our recommendations for trailers to watch</p>
 		<form
 			hx-get="/movies"
 			hx-target="#search-results"
 			hx-indicator="#search-results-indicator"
-            hx-on:submit="clearMovieSearch()"
+			hx-on:submit="clearMovieSearch()"
 			hx-swap="innerHTML"
-            role="search"
+			role="search"
 		>
-            <input type="search" id="search" name="search" placeholder="Search for one of your favorites..."/>
-            <input type="submit" value="Search" />
+			<input
+				id="search"
+				type="search"
+				name="search"
+				placeholder="Search for one of your favorites..."
+				maxlength="20"
+				required
+			/>
+			<input type="submit" value="Search"/>
 		</form>
-		<table id="search-results" />
-        <div id="search-results-indicator" class="htmx-indicator">
-            <progress />
-        </div>
+		<table id="search-results"></table>
+		<div id="search-results-indicator" class="htmx-indicator">
+			<progress></progress>
+		</div>
 	</div>
-    <script>
+	<script>
     function clearMovieSearch () {
         document.getElementById("search-results").innerHTML = "";
     }
