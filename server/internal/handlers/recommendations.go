@@ -10,6 +10,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/mpcarolin/cinematch-server/internal/components"
 	"github.com/mpcarolin/cinematch-server/internal/models"
+	"github.com/mpcarolin/cinematch-server/internal/services"
 	"github.com/mpcarolin/cinematch-server/internal/utils"
 )
 
@@ -29,13 +30,13 @@ func GetSingleRecommendation(c echo.Context) error {
 	}
 
 	// Call api endpoints for movie data
-	recommendations, err := utils.GetMovieRecommendationsCached(ctx.Cache, movieId)
+	recommendations, err := services.GetMovieRecommendationsCached(ctx.Cache, movieId)
 	if err != nil {
 		// TODO: if there are no recommendations, we should display a ui indicating user should try a different base movie
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
-	nextTrailer, err := utils.GetBestMovieTrailerCached(ctx.Cache, recommendationId)
+	nextTrailer, err := services.GetBestMovieTrailerCached(ctx.Cache, recommendationId)
 	if err != nil {
 		// TODO: in this case, there are no trailers for the movie, so we need to 
 		// perhaps remove this recommendation from the list!
@@ -69,7 +70,7 @@ func GetRecommendations(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "Invalid movie id")
 	}
 
-	recommendations, err := utils.GetMovieRecommendationsCached(ctx.Cache, movieId)
+	recommendations, err := services.GetMovieRecommendationsCached(ctx.Cache, movieId)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -108,7 +109,7 @@ func HandleRecommendationAction(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
-	recommendations, err := utils.GetMovieRecommendationsCached(ctx.Cache, movieId)
+	recommendations, err := services.GetMovieRecommendationsCached(ctx.Cache, movieId)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}

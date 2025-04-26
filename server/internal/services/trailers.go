@@ -1,4 +1,4 @@
-package utils
+package services
 
 import (
 	"encoding/json"
@@ -9,6 +9,7 @@ import (
 
 	"github.com/eko/gocache/lib/v4/cache"
 	"github.com/mpcarolin/cinematch-server/internal/models"
+	"github.com/mpcarolin/cinematch-server/internal/utils"
 )
 
 func GetBestMovieTrailerCached(cache *cache.Cache[string], movieId int) (*models.Trailer, error) {
@@ -16,7 +17,7 @@ func GetBestMovieTrailerCached(cache *cache.Cache[string], movieId int) (*models
 	fetch := func(key string) (*models.Trailer, error) {
 		return GetBestMovieTrailer(movieId)
 	}
-	return WithCache(cache, cacheKey, fetch, 24*time.Hour)
+	return utils.WithCache(cache, cacheKey, fetch, 24*time.Hour)
 }
 
 func GetBestMovieTrailer(movieId int) (*models.Trailer, error) {

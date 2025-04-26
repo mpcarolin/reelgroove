@@ -1,4 +1,4 @@
-package utils
+package services
 
 import (
 	"encoding/json"
@@ -8,6 +8,7 @@ import (
 
 	"github.com/eko/gocache/lib/v4/cache"
 	"github.com/mpcarolin/cinematch-server/internal/models"
+	"github.com/mpcarolin/cinematch-server/internal/utils"
 )
 
 func MovieMeetsUsageCriteria(movie models.Movie) bool {
@@ -19,7 +20,7 @@ func SearchMoviesCached(cache *cache.Cache[string], search string) (*models.Movi
 	fetch := func(searchKey string) (*models.MovieSearchResponse, error) {
 		return SearchMovies(searchKey)
 	}
-	return WithCache(cache, cacheKey, fetch, 24*time.Hour);
+	return utils.WithCache(cache, cacheKey, fetch, 24*time.Hour);
 }
 
 func SearchMovies(search string) (*models.MovieSearchResponse, error) {

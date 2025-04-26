@@ -9,7 +9,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/mpcarolin/cinematch-server/internal/components"
 	"github.com/mpcarolin/cinematch-server/internal/models"
-	"github.com/mpcarolin/cinematch-server/internal/utils"
+	"github.com/mpcarolin/cinematch-server/internal/services"
 )
 
 func cleanUpSearchQuery(search string) string {
@@ -23,7 +23,7 @@ func GetMovieSearchResults(c echo.Context) error {
 
 	slog.Info("GetMovieSearchResults", "searchQuery", searchQuery)
 
-	response, err := utils.SearchMoviesCached(ctx.Cache, searchQuery)
+	response, err := services.SearchMoviesCached(ctx.Cache, searchQuery)
 	if err != nil {
 		slog.Error("Error fetching movie search results", "error", err)
 		return c.String(http.StatusInternalServerError, err.Error())
