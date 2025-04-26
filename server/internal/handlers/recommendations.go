@@ -39,7 +39,7 @@ func GetSingleRecommendation(c echo.Context) error {
 	nextTrailer, err := services.GetBestMovieTrailerCached(ctx.Cache, recommendationId)
 	if err != nil {
 		// TODO: in this case, there are no trailers for the movie, so we need to 
-		// perhaps remove this recommendation from the list!
+		// perhaps remove this recommendation from the list, but not return this error here
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 

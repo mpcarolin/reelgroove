@@ -54,3 +54,8 @@ type Trailer struct {
 	Id string `json:"id"`
 	MovieId int
 } 
+
+type TrailerResponse struct {
+	MovieId int `json:"id"` // movie id for trailers?
+	Results []Trailer `json:"results"`
+}

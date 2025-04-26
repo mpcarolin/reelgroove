@@ -16,6 +16,8 @@ import (
 	"github.com/mpcarolin/cinematch-server/internal/utils"
 )
 
+// TOOD: put somewhere else, it's a private variable but still accessible from all other files in this package,
+// so the imports are suprising
 var apiKey = os.Getenv("TMDB_API_KEY")
 
 func SearchMoviesCached(cache *cache.Cache[string], search string) (*models.MovieSearchResponse, error) {
