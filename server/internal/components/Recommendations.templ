@@ -28,10 +28,8 @@ func GetSummaryUrl(context models.TemplateContext) string {
 
 templ Recommendations(context models.TemplateContext) {
 	<div class="recommendations-container">
-		@RecommendationProgressBanner(context)
-		<h2 class="recommendations-title">Next Up</h2>
 		<div class="recommendations-trailer-buttons-container">
-			@YouTubeVideoEmbed(context.Trailer.Key, VideoConfig{Autoplay: false})
+            @YouTubeVideoEmbed(context.Trailer.Key, VideoConfig{Autoplay: true})
 			<div class="recommendations-buttons">
 				<button
 					id="maybe-button"
@@ -68,6 +66,7 @@ templ Recommendations(context models.TemplateContext) {
 				</button>
 			</div>
 		</div>
+		@RecommendationProgressBanner(context)
 	</div>
 }
 
@@ -80,7 +79,7 @@ templ RecommendationProgressBanner(context models.TemplateContext) {
 		<ul class="recommendation-progress-banner-list">
 			for idx, recommendation := range context.Recommendations {
 				{{ matchesMovie := recommendation.Id == context.Trailer.MovieId }}
-                {{ liked := IsMovieLiked(context, recommendation.Id) }}
+				{{ liked := IsMovieLiked(context, recommendation.Id) }}
 				<li class={ "recommendation-progress-banner-trailer-list-item" }>
 					<a href={ templ.SafeURL(GetRecommendationUrl(context, recommendation.Id)) }>
 						<div class="recommendation-progress-banner-trailer-list-item-poster-container">
@@ -88,16 +87,16 @@ templ RecommendationProgressBanner(context models.TemplateContext) {
 								class={
 									"recommendation-progress-banner-trailer-poster",
 									templ.KV("blur", !matchesMovie && !liked),
-                                    templ.KV("liked", liked && !matchesMovie),
+									templ.KV("liked", liked && !matchesMovie),
 									templ.KV("active", matchesMovie),
 								}
 								src={ recommendation.FullPosterURL() }
 								alt={ recommendation.Title }
 								title={ recommendation.Title }
 							/>
-                            if liked {
-                                <i class="iconoir-star-solid recommendation-progress-banner-trailer-like-icon"></i>
-                            }
+							if liked {
+								<i class="iconoir-star-solid recommendation-progress-banner-trailer-like-icon"></i>
+							}
 						</div>
 					</a>
 				</li>
@@ -105,21 +104,7 @@ templ RecommendationProgressBanner(context models.TemplateContext) {
 					<i class="recommendation-progress-banner-trailer-connector iconoir-git-commit"></i>
 				}
 			}
-
-            {{ enableSummary := len(context.UserLikes) >= 1 }}
-            {{ 
-                var summaryTooltip string
-                if enableSummary {
-                    summaryTooltip = "Review your saved movies"
-                } else {
-                    summaryTooltip = "Like at least one movie to review"
-                }
-            }}
-            <i class="recommendation-progress-banner-trailer-connector iconoir-git-commit"></i>
-            <li title={summaryTooltip} class={"recommendation-progress-banner-trailer-list-item summary-item", templ.KV("disabled", !enableSummary)}>
-                <i hx-get={ GetSummaryUrl(context)} hx-target="main" hx-swap="innerHTML" class="iconoir-page-star summary-icon"></i>
-                <small>Review</small>
-            </li>
+			<i class="more-recommendations-icon iconoir-dot-arrow-right"></i>
 		</ul>
 	</nav>
 }

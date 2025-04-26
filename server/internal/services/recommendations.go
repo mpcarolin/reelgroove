@@ -38,6 +38,11 @@ func GetMovieRecommendations(movieId int) (*models.RecommendationResponse, error
 		}
 	}
 
+	// TODO: we actually should NOT limimt this to 10. The user
+	// should be able to continue watching previews until they
+	// feel they are done or have seen all the recommendations.
+	// This means we absolutely need to support pagination of some
+	// kind, unfortunately, which might be a bit tricky to implement...
 	recommendations.Results = filteredResults[:10]
 
 	return &recommendations, nil
