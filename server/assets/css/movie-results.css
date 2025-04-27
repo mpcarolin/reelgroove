@@ -1,0 +1,11 @@
+.movie-result-poster {
+    max-width: 100px;
+}
+
+.search-result-row:hover {
+    background-color: #111;
+}
+
+.table-action-icon {
+    font-size: xx-large;
+}

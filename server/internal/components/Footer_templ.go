@@ -10,6 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 func footer() templ.CSSClass {
 	templ_7745c5c3_CSSBuilder := templruntime.GetBuilder()
+	templ_7745c5c3_CSSBuilder.WriteString(`margin-top:50px;`)
 	templ_7745c5c3_CSSBuilder.WriteString(`display:relative;`)
 	templ_7745c5c3_CSSBuilder.WriteString(`bottom:0;`)
 	templ_7745c5c3_CSSBuilder.WriteString(`width:100%;`)
@@ -59,7 +60,7 @@ func Footer() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"></footer>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><hr><small>2025 SomeFunCompany Trademark Here</small></footer>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

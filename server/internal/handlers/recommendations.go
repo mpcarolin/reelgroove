@@ -38,7 +38,7 @@ func GetSingleRecommendation(c echo.Context) error {
 
 	nextTrailer, err := services.GetBestMovieTrailerCached(ctx.Cache, recommendationId)
 	if err != nil {
-		// TODO: in this case, there are no trailers for the movie, so we need to 
+		// TODO: in this case, there are no trailers for the movie, so we need to
 		// perhaps remove this recommendation from the list, but not return this error here
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -49,14 +49,20 @@ func GetSingleRecommendation(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
-	// Render recommendations page
+	autoplay := false
+	if ctx.QueryParam("autoplay") == "on" {
+		autoplay = true
+	}
+	templateContext := models.TemplateContext{
+		MovieId:         movieId,
+		Trailer:         nextTrailer,
+		Recommendations: recommendations.Results,
+		UserLikes:       userLikes,
+		Autoplay:        autoplay,
+	}
+
 	return components.Page(
-		components.Recommendations(models.TemplateContext{
-			MovieId:         movieId,
-			Trailer:         nextTrailer,
-			Recommendations: recommendations.Results,
-			UserLikes:       userLikes,
-		}),
+		components.Recommendations(templateContext),
 	).Render(context.Background(), c.Response().Writer)
 
 }
@@ -83,7 +89,7 @@ func GetRecommendations(c echo.Context) error {
 	userLikesCookie := utils.CreateUserLikesCookie([]string{})
 	http.SetCookie(c.Response().Writer, userLikesCookie)
 
-	recommendationUrl := "/movie/" + strconv.Itoa(movieId) + "/recommendations/" + strconv.Itoa(recommendationIds[0])
+	recommendationUrl := "/movie/" + strconv.Itoa(movieId) + "/recommendations/" + strconv.Itoa(recommendationIds[0]) + "?autoplay=on"
 	return c.Redirect(http.StatusSeeOther, recommendationUrl)
 }
 

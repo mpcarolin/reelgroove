@@ -1,0 +1,58 @@
+.recommendation-progress-nav {
+    display: flex;
+    flex-direction: row;
+    align-items: start;
+    justify-content: space-between;
+    width: 98%;
+    min-height: fit-content;
+}
+
+.recommendation-progress-banner-list {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-inline: 15px;
+    min-height: fit-content;
+    width: 100%;
+}
+
+.recommendation-progress-banner-trailer-list-item {
+    cursor: pointer;
+    padding: 4px;
+}
+
+
+.recommendation-progress-banner-trailer-poster {
+    max-width: 60px;
+}
+
+.recommendation-progress-banner-trailer-connector {
+    opacity: 0.4;
+    font-size: x-large;
+}
+
+.recommendation-progress-banner-trailer-list-item-poster-container {
+    position: relative;
+}
+
+.recommendation-progress-banner-trailer-like-icon {
+    position: absolute;
+    bottom: -15;
+    right: -15;
+    color: var(--pico-color-purple-600);
+}
+
+.more-recommendations-icon {
+    font-size: 2em;
+    cursor: pointer;
+}
+
+.more-recommendations-icon:hover {
+    color: var(--pico-color-purple-600);
+}
+
+.liked {
+    filter: blur(1px);
+    opacity: 1;
+}

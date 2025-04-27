@@ -15,14 +15,34 @@ templ Page(mainContents templ.Component) {
 			<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/iconoir-icons/iconoir@main/css/iconoir.css"/>
 			<link
 				rel="stylesheet"
-				href="/assets/css/index.css"
+				href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.colors.min.css"
 			/>
 			<link
 				rel="stylesheet"
-				href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.colors.min.css"
+				href="/assets/css/common.css"
+			/>
+			<link
+				rel="stylesheet"
+				href="/assets/css/header.css"
+			/>
+			<link
+				rel="stylesheet"
+				href="/assets/css/movie-results.css"
+			/>
+			<link
+				rel="stylesheet"
+				href="/assets/css/recommendations.css"
+			/>
+			<link
+				rel="stylesheet"
+				href="/assets/css/recommendations-banner.css"
+			/>
+			<link
+				rel="stylesheet"
+				href="/assets/css/trailer-settings.css"
 			/>
 		</head>
-		<body>
+		<body hx-boost="true">
 			@Header()
 			@Main(mainContents)
 			@Footer()

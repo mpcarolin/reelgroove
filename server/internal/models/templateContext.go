@@ -5,4 +5,5 @@ type TemplateContext struct {
 	Trailer         *Trailer
 	Recommendations []Movie
 	UserLikes       []string // id of recommendations the user has liked
+	Autoplay        bool
 }

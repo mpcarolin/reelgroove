@@ -1,0 +1,32 @@
+.hidden {
+    display: none;
+}
+
+.htmx-indicator {
+    opacity:0;
+    transition: opacity 150ms ease-in;
+}
+
+.htmx-request .htmx-indicator{
+    opacity:1;
+}
+.htmx-request.htmx-indicator{
+    opacity:1;
+}
+
+.blur {
+    filter: blur(2px);
+    opacity: 0.5;
+}
+
+.blur:hover {
+    filter: blur(0px);
+    opacity: 1;
+}
+
+.active {
+    filter: blur(0px);
+    opacity: 1;
+    border: 1px dotted #fff;
+    border-radius: 4px;
+}
