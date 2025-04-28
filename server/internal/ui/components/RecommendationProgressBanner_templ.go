@@ -14,12 +14,15 @@ import (
 	"strconv"
 )
 
-// TODO: move
-func IsMovieLiked(context models.TemplateContext, recommendationId int) bool {
-	return slices.Contains(context.UserLikes, strconv.Itoa(recommendationId))
+type RecommendationProgressBannerViewModel struct {
+	MovieId                 int
+	CurrentRecommendationId int
+	Recommendations         []models.Movie
+	UserLikes               []string
+	Settings                models.RecommendationSettings
 }
 
-func RecommendationProgressBanner(context models.TemplateContext) templ.Component {
+func RecommendationProgressBanner(data RecommendationProgressBannerViewModel) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -44,9 +47,9 @@ func RecommendationProgressBanner(context models.TemplateContext) templ.Componen
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		for idx, recommendation := range context.Recommendations {
-			matchesMovie := recommendation.Id == context.Trailer.MovieId
-			liked := IsMovieLiked(context, recommendation.Id)
+		for idx, recommendation := range data.Recommendations {
+			matchesMovie := recommendation.Id == data.CurrentRecommendationId
+			liked := IsMovieLiked(data.UserLikes, recommendation.Id)
 			var templ_7745c5c3_Var2 = []any{"recommendation-progress-banner-trailer-list-item"}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var2...)
 			if templ_7745c5c3_Err != nil {
@@ -69,7 +72,7 @@ func RecommendationProgressBanner(context models.TemplateContext) templ.Componen
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var4 templ.SafeURL = templ.SafeURL(models.GetRecommendationUrl(context.MovieId, recommendation.Id, &context.Autoplay))
+			var templ_7745c5c3_Var4 templ.SafeURL = templ.SafeURL(models.GetRecommendationUrl(data.MovieId, recommendation.Id, &data.Settings.Autoplay))
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var4)))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -108,7 +111,7 @@ func RecommendationProgressBanner(context models.TemplateContext) templ.Componen
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(recommendation.FullPosterURL())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/RecommendationProgressBanner.templ`, Line: 30, Col: 44}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/RecommendationProgressBanner.templ`, Line: 33, Col: 44}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -121,7 +124,7 @@ func RecommendationProgressBanner(context models.TemplateContext) templ.Componen
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(recommendation.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/RecommendationProgressBanner.templ`, Line: 31, Col: 34}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/RecommendationProgressBanner.templ`, Line: 34, Col: 34}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -134,7 +137,7 @@ func RecommendationProgressBanner(context models.TemplateContext) templ.Componen
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(recommendation.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/RecommendationProgressBanner.templ`, Line: 32, Col: 36}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/RecommendationProgressBanner.templ`, Line: 35, Col: 36}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -154,7 +157,7 @@ func RecommendationProgressBanner(context models.TemplateContext) templ.Componen
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if idx < len(context.Recommendations)-1 {
+			if idx < len(data.Recommendations)-1 {
 				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<i class=\"recommendation-progress-banner-trailer-connector iconoir-git-commit\"></i> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -167,6 +170,11 @@ func RecommendationProgressBanner(context models.TemplateContext) templ.Componen
 		}
 		return nil
 	})
+}
+
+// TODO: move
+func IsMovieLiked(userLikes []string, recommendationId int) bool {
+	return slices.Contains(userLikes, strconv.Itoa(recommendationId))
 }
 
 var _ = templruntime.GeneratedTemplate

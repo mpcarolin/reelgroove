@@ -59,3 +59,7 @@ type TrailerResponse struct {
 	MovieId int `json:"id"` // movie id for trailers?
 	Results []Trailer `json:"results"`
 }
+
+type RecommendationSettings struct {
+	Autoplay bool
+}

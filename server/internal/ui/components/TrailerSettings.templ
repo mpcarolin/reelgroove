@@ -4,13 +4,18 @@ import (
 	"github.com/mpcarolin/cinematch-server/internal/models"
 )
 
-templ TrailerSettings(context models.TemplateContext) {
+type TrailerSettingsViewModel struct {
+    Settings models.RecommendationSettings
+    NextRecommendationUrl string
+}
+
+templ TrailerSettings(data TrailerSettingsViewModel) {
 	<div id="trailer-settings-container">
 		<h6>Settings</h6>
 		<form
 			id="trailer-settings"
 			hx-trigger="change"
-			hx-get={ models.GetRecommendationUrl(context.MovieId, context.Trailer.MovieId, nil) }
+			hx-get={ data.NextRecommendationUrl }
 			hx-target=".recommendations-container"
 			hx-select=".recommendations-container"
 			hx-push-url="true"
@@ -22,7 +27,7 @@ templ TrailerSettings(context models.TemplateContext) {
 						name="autoplay"
 						type="checkbox"
 						role="switch"
-						if context.Autoplay {
+						if data.Settings.Autoplay {
 							checked
 						}
 					/>

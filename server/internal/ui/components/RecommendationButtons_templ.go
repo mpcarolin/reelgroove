@@ -8,11 +8,14 @@ package components
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import (
-	"github.com/mpcarolin/cinematch-server/internal/models"
-)
+type RecommendationButtonsViewModel struct {
+	NextRecommendationUrl string
+	LikeUrl               string
+	SkipUrl               string
+	WatchUrl              string
+}
 
-func RecommendationButtons(context models.TemplateContext) templ.Component {
+func RecommendationButtons(data RecommendationButtonsViewModel) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -38,9 +41,9 @@ func RecommendationButtons(context models.TemplateContext) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
-		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(models.GetMaybeUrl(context))
+		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(data.LikeUrl)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/RecommendationButtons.templ`, Line: 12, Col: 39}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/RecommendationButtons.templ`, Line: 15, Col: 24}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -51,9 +54,9 @@ func RecommendationButtons(context models.TemplateContext) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var3 string
-		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(models.GetNextRecommendationUrl(context))
+		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(data.NextRecommendationUrl)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/RecommendationButtons.templ`, Line: 15, Col: 57}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/RecommendationButtons.templ`, Line: 18, Col: 43}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -64,9 +67,9 @@ func RecommendationButtons(context models.TemplateContext) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var4 string
-		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(models.GetSkipUrl(context))
+		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.SkipUrl)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/RecommendationButtons.templ`, Line: 23, Col: 38}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/RecommendationButtons.templ`, Line: 26, Col: 24}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -77,9 +80,9 @@ func RecommendationButtons(context models.TemplateContext) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var5 string
-		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(models.GetWatchUrl(context))
+		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(data.WatchUrl)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/RecommendationButtons.templ`, Line: 33, Col: 39}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/RecommendationButtons.templ`, Line: 36, Col: 25}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {

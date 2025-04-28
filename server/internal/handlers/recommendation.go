@@ -52,16 +52,18 @@ func GetRecommendationById(c echo.Context) error {
 	if ctx.QueryParam("autoplay") == "on" {
 		autoplay = true
 	}
-	templateContext := models.TemplateContext{
+
+	recommendationViewModel := pages.RecommendationViewModel{
 		MovieId:         movieId,
-		Trailer:         nextTrailer,
+		CurrentRecommendationId: recommendationId,
 		Recommendations: recommendations.Results,
 		UserLikes:       userLikes,
-		Autoplay:        autoplay,
+		Trailer:         nextTrailer,
+		Settings:        models.RecommendationSettings{Autoplay: autoplay},
 	}
 
 	return ui.Page(
-		pages.Recommendations(templateContext),
+		pages.Recommendation(recommendationViewModel),
 	).Render(context.Background(), c.Response().Writer)
 
 }

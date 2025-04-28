@@ -15,16 +15,16 @@ type TemplateContext struct {
 }
 
 // TODO: move these
-func GetSkipUrl(context TemplateContext) string {
-	return "/movie/" + strconv.Itoa(context.MovieId) + "/recommendations/" + strconv.Itoa(context.Trailer.MovieId) + "/skip"
+func GetSkipUrl(movieId int, recommendationId int) string {
+	return "/movie/" + strconv.Itoa(movieId) + "/recommendations/" + strconv.Itoa(recommendationId) + "/skip"
 }
 
-func GetMaybeUrl(context TemplateContext) string {
-	return "/movie/" + strconv.Itoa(context.MovieId) + "/recommendations/" + strconv.Itoa(context.Trailer.MovieId) + "/maybe"
+func GetMaybeUrl(movieId int, recommendationId int) string {
+	return "/movie/" + strconv.Itoa(movieId) + "/recommendations/" + strconv.Itoa(recommendationId) + "/maybe"
 }
 
-func GetWatchUrl(context TemplateContext) string {
-	return "/movie/" + strconv.Itoa(context.MovieId) + "/recommendations/" + strconv.Itoa(context.Trailer.MovieId) + "/watch"
+func GetWatchUrl(movieId int, recommendationId int) string {
+	return "/movie/" + strconv.Itoa(movieId) + "/recommendations/" + strconv.Itoa(recommendationId) + "/watch"
 }
 
 func GetRecommendationUrl(movieId int, recommendationId int, autoplay *bool) string {
@@ -37,16 +37,15 @@ func GetRecommendationUrl(movieId int, recommendationId int, autoplay *bool) str
 }
 
 // TODO: move all these to utils or something, and also reuse this one with the skip/maybe action?
-func GetNextRecommendationUrl(context TemplateContext) string {
-	currentRecommendationIndex := slices.IndexFunc(context.Recommendations, func(recommendation Movie) bool { return recommendation.Id == context.Trailer.MovieId })
-	nextRecommendationIndex := math.Min(float64(currentRecommendationIndex+1), float64(len(context.Recommendations)-1))
-	nextRecommendationId := context.Recommendations[int(nextRecommendationIndex)].Id
+func GetNextRecommendationUrl(movieId int, recommendations []Movie, currentRecommendationId int, autoplay *bool) string {
+	currentRecommendationIndex := slices.IndexFunc(recommendations, func(recommendation Movie) bool { return recommendation.Id == currentRecommendationId })
+	nextRecommendationIndex := math.Min(float64(currentRecommendationIndex+1), float64(len(recommendations)-1))
+	nextRecommendationId := recommendations[int(nextRecommendationIndex)].Id
 
 	// TODO: look up some go utility for query param string building
-    autoplay := context.Autoplay
     queryString := ""
-    if autoplay {
+    if autoplay != nil && *autoplay {
         queryString = "?autoplay=on"
     }
-	return "/movie/" + strconv.Itoa(context.MovieId) + "/recommendations/" + strconv.Itoa(nextRecommendationId) + queryString
+	return "/movie/" + strconv.Itoa(movieId) + "/recommendations/" + strconv.Itoa(nextRecommendationId) + queryString
 }

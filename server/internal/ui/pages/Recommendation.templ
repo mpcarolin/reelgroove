@@ -1,0 +1,43 @@
+package pages
+
+import (
+	"github.com/mpcarolin/cinematch-server/internal/models"
+	"github.com/mpcarolin/cinematch-server/internal/ui/components"
+)
+
+type RecommendationViewModel struct {
+    MovieId int
+	CurrentRecommendationId int
+    Recommendations []models.Movie
+    UserLikes []string
+	Trailer *models.Trailer
+    Settings models.RecommendationSettings
+}
+
+templ Recommendation(data RecommendationViewModel) {
+    {{ nextRecommendationUrl := models.GetNextRecommendationUrl(data.MovieId, data.Recommendations, data.CurrentRecommendationId, &data.Settings.Autoplay) }}
+	<div class="recommendations-container">
+		@components.RecommendationProgressBanner(components.RecommendationProgressBannerViewModel{
+            MovieId: data.MovieId,
+            CurrentRecommendationId: data.CurrentRecommendationId,
+            Recommendations: data.Recommendations,
+            UserLikes: data.UserLikes,
+            Settings: data.Settings,
+        })
+		<div class="recommendations-trailer-buttons-container">
+			@components.YouTubeVideoEmbed(data.Trailer.Key, components.VideoConfig{Autoplay: data.Settings.Autoplay})
+			<div class="recommendations-trailer-actions-container">
+				@components.TrailerSettings(components.TrailerSettingsViewModel{
+                    Settings: data.Settings,
+                    NextRecommendationUrl: nextRecommendationUrl,
+                })
+                @components.RecommendationButtons(components.RecommendationButtonsViewModel{
+                    NextRecommendationUrl: nextRecommendationUrl,
+                    LikeUrl: models.GetMaybeUrl(data.MovieId, data.CurrentRecommendationId),
+                    SkipUrl: models.GetSkipUrl(data.MovieId, data.CurrentRecommendationId),
+                    WatchUrl: models.GetWatchUrl(data.MovieId, data.CurrentRecommendationId),
+                })
+			</div>
+		</div>
+	</div>
+}

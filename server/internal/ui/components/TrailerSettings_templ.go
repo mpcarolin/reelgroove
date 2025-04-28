@@ -12,7 +12,12 @@ import (
 	"github.com/mpcarolin/cinematch-server/internal/models"
 )
 
-func TrailerSettings(context models.TemplateContext) templ.Component {
+type TrailerSettingsViewModel struct {
+	Settings              models.RecommendationSettings
+	NextRecommendationUrl string
+}
+
+func TrailerSettings(data TrailerSettingsViewModel) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -38,9 +43,9 @@ func TrailerSettings(context models.TemplateContext) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
-		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(models.GetRecommendationUrl(context.MovieId, context.Trailer.MovieId, nil))
+		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(data.NextRecommendationUrl)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/TrailerSettings.templ`, Line: 13, Col: 86}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/TrailerSettings.templ`, Line: 18, Col: 38}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -50,7 +55,7 @@ func TrailerSettings(context models.TemplateContext) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if context.Autoplay {
+		if data.Settings.Autoplay {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, " checked")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err

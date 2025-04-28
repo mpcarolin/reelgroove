@@ -1,18 +1,21 @@
 package components
 
-import (
-	"github.com/mpcarolin/cinematch-server/internal/models"
-)
+type RecommendationButtonsViewModel struct {
+    NextRecommendationUrl string
+    LikeUrl string
+    SkipUrl string
+    WatchUrl string
+}
 
-templ RecommendationButtons(context models.TemplateContext) {
+templ RecommendationButtons(data RecommendationButtonsViewModel) {
 	<div class="recommendations-buttons-container">
 		<button
 			id="maybe-button"
 			class="trailer-response-button"
-			hx-put={ models.GetMaybeUrl(context) }
+			hx-put={ data.LikeUrl }
 			hx-target=".recommendations-container"
 			hx-swap="outerHTML"
-			hx-push-url={ models.GetNextRecommendationUrl(context) }
+			hx-push-url={ data.NextRecommendationUrl }
 		>
 			<i class="iconoir-thumbs-up"></i>
 			Like
@@ -20,7 +23,7 @@ templ RecommendationButtons(context models.TemplateContext) {
 		<button
 			id="skip-button"
 			class="trailer-response-button"
-			hx-put={ models.GetSkipUrl(context) }
+			hx-put={ data.SkipUrl }
 			hx-target=".recommendations-container"
 			hx-swap="outerHTML"
 		>
@@ -30,7 +33,7 @@ templ RecommendationButtons(context models.TemplateContext) {
 		<button
 			id="watch-button"
 			class="trailer-response-button"
-			hx-put={ models.GetWatchUrl(context) }
+			hx-put={ data.WatchUrl }
 			hx-target=".recommendations-container"
 			hx-swap="outerHTML"
 		>

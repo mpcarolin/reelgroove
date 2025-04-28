@@ -31,7 +31,7 @@ func SearchMovies(c echo.Context) error {
 		}
 	}
 
-	component := components.MovieResults(searchResults)
+	component := components.MovieResults(searchResults);
 
 	return component.Render(context.Background(), c.Response().Writer)
 }

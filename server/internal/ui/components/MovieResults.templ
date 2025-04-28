@@ -4,6 +4,7 @@ import (
 	"github.com/mpcarolin/cinematch-server/internal/models"
 )
 
+
 templ MovieResults(movies []models.Movie) {
     if len(movies) == 0 {
         <p>0 movies found with that name</p>

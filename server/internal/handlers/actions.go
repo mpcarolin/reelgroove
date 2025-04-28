@@ -45,6 +45,8 @@ func HandleRecommendationAction(c echo.Context) error {
 	nextRecommendationIndex := math.Min(float64(currentRecommendationIndex+1), float64(len(recommendations.Results)-1))
 	nextRecommendationId := recommendations.Results[int(nextRecommendationIndex)].Id
 
+	autoplay := c.QueryParam("autoplay") == "on"
+
 	switch action {
 	case "skip":
 		userLikes = slices.DeleteFunc(userLikes, func(like string) bool { return like == strconv.Itoa(recommendationId) })
@@ -54,12 +56,15 @@ func HandleRecommendationAction(c echo.Context) error {
 		if err != nil {
 			return c.String(http.StatusInternalServerError, err.Error())
 		}
-		return pages.Recommendations(models.TemplateContext{
-			MovieId:         movieId,
-			Trailer:         nextTrailer,
+		recommendationViewModel := pages.RecommendationViewModel{
+			MovieId: movieId,
+			CurrentRecommendationId: recommendationId,
 			Recommendations: recommendations.Results,
-			UserLikes:       userLikes,
-		}).Render(context.Background(), c.Response().Writer)
+			UserLikes: userLikes,
+			Trailer: nextTrailer,
+			Settings: models.RecommendationSettings{Autoplay: autoplay},
+		}
+		return pages.Recommendation(recommendationViewModel).Render(context.Background(), c.Response().Writer)
 	case "maybe":
 		userLikes = append(userLikes, strconv.Itoa(recommendationId))
 		userLikesCookie := utils.CreateUserLikesCookie(userLikes)
@@ -68,12 +73,15 @@ func HandleRecommendationAction(c echo.Context) error {
 		if err != nil {
 			return c.String(http.StatusInternalServerError, err.Error())
 		}
-		return pages.Recommendations(models.TemplateContext{
-			MovieId:         movieId,
-			Trailer:         nextTrailer,
+		recommendationViewModel := pages.RecommendationViewModel{
+			MovieId: movieId,
+			CurrentRecommendationId: recommendationId,
 			Recommendations: recommendations.Results,
-			UserLikes:       userLikes,
-		}).Render(context.Background(), c.Response().Writer)
+			UserLikes: userLikes,
+			Trailer: nextTrailer,
+			Settings: models.RecommendationSettings{Autoplay: autoplay},
+		}
+		return pages.Recommendation(recommendationViewModel).Render(context.Background(), c.Response().Writer)
 	case "watch":
 		// TODO: implement...
 		return nil
