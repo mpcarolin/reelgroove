@@ -38,7 +38,8 @@ func main() {
 	e.GET("/movies", handlers.SearchMovies)
 	e.GET("/movie/:movieId/recommendations", handlers.GetRecommendations)
 	e.GET("/movie/:movieId/recommendations/:recommendationId", handlers.GetRecommendationById)
-	e.PUT("/movie/:movieId/recommendations/:recommendationId/:action", handlers.HandleRecommendationAction)
+	e.PUT("/movie/:movieId/recommendations/:recommendationId/like", handlers.LikeRecommendation)
+	e.PUT("/movie/:movieId/recommendations/:recommendationId/skip", handlers.SkipRecommendation)
 	e.Static("/assets", "assets")
 
 	// Start server

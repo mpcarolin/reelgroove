@@ -14,7 +14,7 @@ type RecommendationViewModel struct {
     Settings models.RecommendationSettings
 }
 
-templ Recommendation(data RecommendationViewModel) {
+templ Recommendation(data *RecommendationViewModel) {
     {{ nextRecommendationUrl := models.GetNextRecommendationUrl(data.MovieId, data.Recommendations, data.CurrentRecommendationId, &data.Settings.Autoplay) }}
 	<div class="recommendations-container">
 		@components.RecommendationProgressBanner(components.RecommendationProgressBannerViewModel{

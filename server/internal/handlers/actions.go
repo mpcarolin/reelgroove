@@ -14,78 +14,79 @@ import (
 	"github.com/mpcarolin/cinematch-server/internal/utils"
 )
 
-// Handles the action of a recommendation, either skipping, maybe, or watching
-// Updates the user likes cookie, and redirects to the next recommendation
-func HandleRecommendationAction(c echo.Context) error {
+func LikeRecommendation(c echo.Context) error {
+	recommendationViewModel, err := initRecommendationViewModel(c)
+	if err != nil {
+		return err
+	}
+
+	recommendationViewModel.UserLikes = append(recommendationViewModel.UserLikes, strconv.Itoa(recommendationViewModel.CurrentRecommendationId))
+	userLikesCookie := utils.CreateUserLikesCookie(recommendationViewModel.UserLikes)
+	http.SetCookie(c.Response().Writer, userLikesCookie)
+
+	return pages.Recommendation(recommendationViewModel).Render(context.Background(), c.Response().Writer)
+}
+
+func SkipRecommendation(c echo.Context) error {
+	recommendationViewModel, err := initRecommendationViewModel(c)
+	if err != nil {
+		return err
+	}
+
+	recommendationViewModel.UserLikes = slices.DeleteFunc(recommendationViewModel.UserLikes, func(like string) bool { return like == strconv.Itoa(recommendationViewModel.CurrentRecommendationId) })
+	userLikesCookie := utils.CreateUserLikesCookie(recommendationViewModel.UserLikes)
+	http.SetCookie(c.Response().Writer, userLikesCookie)
+
+	return pages.Recommendation(recommendationViewModel).Render(context.Background(), c.Response().Writer)
+}
+
+
+// Initializes a recommendation view model, given the path and query params of the current request url,
+// and the user's likes from the cookie.
+func initRecommendationViewModel(c echo.Context) (*pages.RecommendationViewModel, error) {
 	ctx := c.(*models.RequestContext)
 
 	movieId, err := strconv.Atoi(c.Param("movieId"))
 	if err != nil {
-		return c.String(http.StatusBadRequest, "Invalid movie id")
+		return nil, c.String(http.StatusBadRequest, "Invalid movie id")
 	}
 
 	recommendationId, err := strconv.Atoi(c.Param("recommendationId"))
 	if err != nil {
-		return c.String(http.StatusBadRequest, "Invalid recommendation id")
+		return nil, c.String(http.StatusBadRequest, "Invalid recommendation id")
 	}
-
-	action := c.Param("action")
 
 	userLikes, err := utils.GetUserLikesFromCookie(c)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, err.Error())
+		return nil, c.String(http.StatusInternalServerError, err.Error())
 	}
 
 	recommendations, err := services.GetMovieRecommendationsCached(ctx.Cache, movieId)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, err.Error())
+		return nil, c.String(http.StatusInternalServerError, err.Error())
 	}
 
 	currentRecommendationIndex := slices.IndexFunc(recommendations.Results, func(recommendation models.Movie) bool { return recommendation.Id == recommendationId })
 	nextRecommendationIndex := math.Min(float64(currentRecommendationIndex+1), float64(len(recommendations.Results)-1))
 	nextRecommendationId := recommendations.Results[int(nextRecommendationIndex)].Id
 
-	autoplay := c.QueryParam("autoplay") == "on"
-
-	switch action {
-	case "skip":
-		userLikes = slices.DeleteFunc(userLikes, func(like string) bool { return like == strconv.Itoa(recommendationId) })
-		userLikesCookie := utils.CreateUserLikesCookie(userLikes)
-		http.SetCookie(c.Response().Writer, userLikesCookie)
-		nextTrailer, err := services.GetBestMovieTrailerCached(ctx.Cache, nextRecommendationId)
-		if err != nil {
-			return c.String(http.StatusInternalServerError, err.Error())
-		}
-		recommendationViewModel := pages.RecommendationViewModel{
-			MovieId: movieId,
-			CurrentRecommendationId: recommendationId,
-			Recommendations: recommendations.Results,
-			UserLikes: userLikes,
-			Trailer: nextTrailer,
-			Settings: models.RecommendationSettings{Autoplay: autoplay},
-		}
-		return pages.Recommendation(recommendationViewModel).Render(context.Background(), c.Response().Writer)
-	case "maybe":
-		userLikes = append(userLikes, strconv.Itoa(recommendationId))
-		userLikesCookie := utils.CreateUserLikesCookie(userLikes)
-		http.SetCookie(c.Response().Writer, userLikesCookie)
-		nextTrailer, err := services.GetBestMovieTrailerCached(ctx.Cache, nextRecommendationId)
-		if err != nil {
-			return c.String(http.StatusInternalServerError, err.Error())
-		}
-		recommendationViewModel := pages.RecommendationViewModel{
-			MovieId: movieId,
-			CurrentRecommendationId: recommendationId,
-			Recommendations: recommendations.Results,
-			UserLikes: userLikes,
-			Trailer: nextTrailer,
-			Settings: models.RecommendationSettings{Autoplay: autoplay},
-		}
-		return pages.Recommendation(recommendationViewModel).Render(context.Background(), c.Response().Writer)
-	case "watch":
-		// TODO: implement...
-		return nil
+	nextTrailer, err := services.GetBestMovieTrailerCached(ctx.Cache, nextRecommendationId)
+	if err != nil {
+		return nil, c.String(http.StatusInternalServerError, err.Error())
 	}
 
-	return nil
+	settings := models.RecommendationSettings{
+		Autoplay: c.QueryParam("autoplay") == "on",
+	}
+
+	recommendationViewModel := pages.RecommendationViewModel{
+		MovieId:                 movieId,
+		CurrentRecommendationId: recommendationId,
+		Recommendations:         recommendations.Results,
+		UserLikes:               userLikes,
+		Trailer:                 nextTrailer,
+		Settings:                settings,
+	}
+
+	return &recommendationViewModel, nil
 }

@@ -63,7 +63,7 @@ func GetRecommendationById(c echo.Context) error {
 	}
 
 	return ui.Page(
-		pages.Recommendation(recommendationViewModel),
+		pages.Recommendation(&recommendationViewModel),
 	).Render(context.Background(), c.Response().Writer)
 
 }
