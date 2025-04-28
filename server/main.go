@@ -40,6 +40,7 @@ func main() {
 	e.GET("/movie/:movieId/recommendations/:recommendationId", handlers.GetRecommendationById)
 	e.PUT("/movie/:movieId/recommendations/:recommendationId/like", handlers.LikeRecommendation)
 	e.PUT("/movie/:movieId/recommendations/:recommendationId/skip", handlers.SkipRecommendation)
+	e.PUT("/movie/:movieId/recommendations/:recommendationId/settings", handlers.UpdateRecommendationSettings)
 	e.Static("/assets", "assets")
 
 	// Start server

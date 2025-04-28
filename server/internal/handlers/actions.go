@@ -4,6 +4,7 @@ import (
 	"context"
 	"math"
 	"net/http"
+	"net/url"
 	"slices"
 	"strconv"
 
@@ -14,8 +15,9 @@ import (
 	"github.com/mpcarolin/cinematch-server/internal/utils"
 )
 
+// Updates the user's likes cookie to add the current recommendation, and re-renders the recommendation page
 func LikeRecommendation(c echo.Context) error {
-	recommendationViewModel, err := initRecommendationViewModel(c)
+	recommendationViewModel, err := InitRecommendationViewModel(c)
 	if err != nil {
 		return err
 	}
@@ -27,8 +29,9 @@ func LikeRecommendation(c echo.Context) error {
 	return pages.Recommendation(recommendationViewModel).Render(context.Background(), c.Response().Writer)
 }
 
+// Updates the user's likes cookie to remove the current recommendation, if it was in the cookie, and re-renders the recommendation page
 func SkipRecommendation(c echo.Context) error {
-	recommendationViewModel, err := initRecommendationViewModel(c)
+	recommendationViewModel, err := InitRecommendationViewModel(c)
 	if err != nil {
 		return err
 	}
@@ -41,9 +44,10 @@ func SkipRecommendation(c echo.Context) error {
 }
 
 
+// TODO: This goes somewhere else...
 // Initializes a recommendation view model, given the path and query params of the current request url,
 // and the user's likes from the cookie.
-func initRecommendationViewModel(c echo.Context) (*pages.RecommendationViewModel, error) {
+func InitRecommendationViewModel(c echo.Context) (*pages.RecommendationViewModel, error) {
 	ctx := c.(*models.RequestContext)
 
 	movieId, err := strconv.Atoi(c.Param("movieId"))
@@ -75,18 +79,71 @@ func initRecommendationViewModel(c echo.Context) (*pages.RecommendationViewModel
 		return nil, c.String(http.StatusInternalServerError, err.Error())
 	}
 
-	settings := models.RecommendationSettings{
-		Autoplay: c.QueryParam("autoplay") == "on",
-	}
-
 	recommendationViewModel := pages.RecommendationViewModel{
 		MovieId:                 movieId,
 		CurrentRecommendationId: recommendationId,
 		Recommendations:         recommendations.Results,
 		UserLikes:               userLikes,
 		Trailer:                 nextTrailer,
-		Settings:                settings,
+		Settings:                NewRecommendationSettings(c),
 	}
 
 	return &recommendationViewModel, nil
+}
+
+func NewRecommendationSettings(c echo.Context) models.RecommendationSettings {
+	query := c.QueryParam("autoplay")
+	formValue := c.FormValue("autoplay")
+	clientUrl, _ := GetClientUrl(c)
+
+	// try to fetch the autoplay setting in order of priority:
+	// 1. query param
+	// 2. form data
+	// 3. fall back to existing client url value
+	autoplay := false
+	if (query != "") {
+		autoplay = query == "on"
+	} else if (formValue != "") {
+		autoplay = formValue == "on"
+	} else if (clientUrl != nil) {
+		autoplay = clientUrl.Query().Get("autoplay") == "on"
+	}
+
+	settings := models.RecommendationSettings{
+		Autoplay: autoplay,
+	}
+
+	return settings
+}
+
+func NewRecommendationSettingsFromForm(c echo.Context) models.RecommendationSettings {
+	formValue := c.FormValue("autoplay")
+	autoplay := formValue == "on"
+
+	return models.RecommendationSettings{
+		Autoplay: autoplay,
+	}
+}
+
+func NewRecommendationSettingsFromQuery(c echo.Context) models.RecommendationSettings {
+	query := c.QueryParam("autoplay")
+	autoplay := query == "on"
+
+	return models.RecommendationSettings{
+		Autoplay: autoplay,
+	}
+}
+
+func NewRecommendationSettingsFromClientUrl(c echo.Context) models.RecommendationSettings {
+	clientUrl, _ := GetClientUrl(c)
+	autoplay := clientUrl.Query().Get("autoplay") == "on"
+
+	return models.RecommendationSettings{
+		Autoplay: autoplay,
+	}
+}
+
+func GetClientUrl(c echo.Context) (*url.URL, error) {
+	currentUrl := c.Request().Header.Get("Hx-Current-Url")
+	return url.Parse(currentUrl)
 }

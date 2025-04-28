@@ -5,20 +5,30 @@ import (
 )
 
 type TrailerSettingsViewModel struct {
+    MovieId int
+    RecommendationId int
     Settings models.RecommendationSettings
-    NextRecommendationUrl string
+    UpdateSettingsUrl string
+    PushUrl string
+
+    // https://htmx.org/attributes/hx-swap-oob
+    OOB bool
 }
 
 templ TrailerSettings(data TrailerSettingsViewModel) {
-	<div id="trailer-settings-container">
+	<div 
+        id="trailer-settings-container" 
+        if data.OOB {
+            hx-swap-oob="true"
+        }
+    >
 		<h6>Settings</h6>
 		<form
 			id="trailer-settings"
 			hx-trigger="change"
-			hx-get={ data.NextRecommendationUrl }
-			hx-target=".recommendations-container"
-			hx-select=".recommendations-container"
-			hx-push-url="true"
+			hx-put={ data.UpdateSettingsUrl }
+            hx-target="#trailer-settings-container"
+            hx-params="*"
 		>
 			<fieldset>
 				<label>

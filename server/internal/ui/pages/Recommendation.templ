@@ -29,7 +29,7 @@ templ Recommendation(data *RecommendationViewModel) {
 			<div class="recommendations-trailer-actions-container">
 				@components.TrailerSettings(components.TrailerSettingsViewModel{
                     Settings: data.Settings,
-                    NextRecommendationUrl: nextRecommendationUrl,
+                    UpdateSettingsUrl: models.GetUpdateSettingsUrl(data.MovieId, data.CurrentRecommendationId),
                 })
                 @components.RecommendationButtons(components.RecommendationButtonsViewModel{
                     NextRecommendationUrl: nextRecommendationUrl,

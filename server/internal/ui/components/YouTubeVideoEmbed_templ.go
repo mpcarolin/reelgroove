@@ -10,6 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 type VideoConfig struct {
 	Autoplay bool
+	OOB      bool
 }
 
 func (config VideoConfig) Allow() string {
@@ -49,46 +50,60 @@ func YouTubeVideoEmbed(key string, config VideoConfig) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div id=\"recommendations-video-container\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if config.OOB {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " hx-swap-oob=\"true\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, ">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
 		src := config.SafeUrl(key)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<iframe id=\"recommendations-video-iframe\" src=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<iframe id=\"recommendations-video-iframe\" src=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(string(src))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/YouTubeVideoEmbed.templ`, Line: 27, Col: 19}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/YouTubeVideoEmbed.templ`, Line: 33, Col: 29}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" frameborder=\"0\" style=\"border: solid 4px #37474F\" allow=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" frameborder=\"0\" style=\"border: solid 4px #37474F\" allow=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(config.Allow())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/YouTubeVideoEmbed.templ`, Line: 30, Col: 24}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/YouTubeVideoEmbed.templ`, Line: 36, Col: 34}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\"></iframe><script id=\"recommendations-video-script\">\n        var tag = document.createElement('script');\n        tag.src = 'https://www.youtube.com/iframe_api';\n        var firstScriptTag = document.getElementsByTagName('script')[0];\n        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);\n\n        var player;\n        function onYouTubeIframeAPIReady() {\n            player = new YT.Player('player', {\n                videoId: \"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\"></iframe><script id=\"recommendations-video-script\">\n            var tag = document.createElement('script');\n            tag.src = 'https://www.youtube.com/iframe_api';\n            var firstScriptTag = document.getElementsByTagName('script')[0];\n            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);\n\n            var player;\n            function onYouTubeIframeAPIReady() {\n                player = new YT.Player('player', {\n                    videoId: \"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Var4, templ_7745c5c3_Err := templruntime.ScriptContentInsideStringLiteral(key)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/YouTubeVideoEmbed.templ`, Line: 41, Col: 32}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/YouTubeVideoEmbed.templ`, Line: 47, Col: 36}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\",\n                playerVars: { 'autoplay': 1, 'controls': 0 }\n            });\n        }\n    </script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\",\n                    playerVars: { 'autoplay': 1, 'controls': 0 }\n                });\n            }\n        </script></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -6,12 +6,10 @@ import (
 	"strconv"
 )
 
-type TemplateContext struct {
-	MovieId         int
-	Trailer         *Trailer
-	Recommendations []Movie
-	UserLikes       []string // id of recommendations the user has liked
-	Autoplay        bool
+// TODO: move these to utils/urls.go
+
+func GetUpdateSettingsUrl(movieId int, recommendationId int) string {
+	return "/movie/" + strconv.Itoa(movieId) + "/recommendations/" + strconv.Itoa(recommendationId) + "/settings"
 }
 
 // TODO: move these

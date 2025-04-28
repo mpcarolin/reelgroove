@@ -71,8 +71,8 @@ func Recommendation(data *RecommendationViewModel) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = components.TrailerSettings(components.TrailerSettingsViewModel{
-			Settings:              data.Settings,
-			NextRecommendationUrl: nextRecommendationUrl,
+			Settings:          data.Settings,
+			UpdateSettingsUrl: models.GetUpdateSettingsUrl(data.MovieId, data.CurrentRecommendationId),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
