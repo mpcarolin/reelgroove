@@ -63,3 +63,28 @@ type TrailerResponse struct {
 type RecommendationSettings struct {
 	Autoplay bool
 }
+
+type WatchProviders struct {
+	Id int `json:"id"`
+	Link string `json:"link"`
+	Flatrate []WatchProviderOption `json:"flatrate"`
+	Rent []WatchProviderOption `json:"rent"`
+	Buy []WatchProviderOption `json:"buy"`
+}
+
+type WatchProvidersResponse struct {
+	Id int `json:"id"`
+	// map by country code
+	Results map[string]WatchProviders `json:"results"`
+}
+
+type WatchProviderOption struct {
+	LogoPath string `json:"logo_path"`
+	ProviderId int `json:"provider_id"`
+	ProviderName string `json:"provider_name"`
+	DisplayPriority int `json:"display_priority"`
+}
+
+func (w WatchProviderOption) FullLogoURL() string {
+	return "https://image.tmdb.org/t/p/w45/" + w.LogoPath
+}

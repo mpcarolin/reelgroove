@@ -32,13 +32,12 @@ templ RecommendationButtons(data RecommendationButtonsViewModel) {
 		</button>
 		<button
 			id="watch-button"
-			class="trailer-response-button"
-			hx-put={ data.WatchUrl }
-			hx-target=".recommendations-container"
-			hx-swap="outerHTML"
+            hx-get={ data.WatchUrl }
+            hx-target="#watch-provider-all-options"
+            hx-swap="innerHTML scroll:bottom"
 		>
 			<i class="iconoir-movie"></i>
-			Watch
+            Watch
 		</button>
 	</div>
 }

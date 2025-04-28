@@ -1,0 +1,47 @@
+package components
+
+import "github.com/mpcarolin/cinematch-server/internal/models"
+
+type WatchProvidersViewModel struct {
+	WatchProviders     *models.WatchProviders
+	WatchProvidersLink string
+	WatchProvidersUrl  string
+	MoreInfoUrl        string
+}
+
+templ WatchProviders(data *WatchProvidersViewModel) {
+	<div id="watch-options">
+		<h2>Watch Options</h2>
+        // TODO: add that loading indicator
+		<div id="watch-provider-all-options" hx-trigger="intersect once" hx-get={ data.WatchProvidersUrl } hx-swap="innerHTML">
+			@WatchProvidersAllOptions(data.WatchProviders)
+		</div>
+	</div>
+}
+
+templ WatchProvidersAllOptions(data *models.WatchProviders) {
+	<div>
+		<div class="watch-providers-options">
+            <h3>Streaming</h3>
+			@WatchProviderOptions(data.Flatrate)
+            <h3>Rent</h3>
+			@WatchProviderOptions(data.Rent)
+            <h3>Buy</h3>
+			@WatchProviderOptions(data.Buy)
+		</div>
+		<a id="watch-options-end" href={ templ.SafeURL(data.Link) }>More Info</a>
+	</div>
+}
+
+templ WatchProviderOptions(streamingOptions []models.WatchProviderOption) {
+	<div class="watch-providers-streaming-list">
+		for _, provider := range streamingOptions {
+			<figure>
+				<img src={ provider.FullLogoURL() } alt={ provider.ProviderName }/>
+				<figcaption>
+					<small>{ provider.ProviderName }</small>
+				</figcaption>
+			</figure>
+		}
+	</div>
+}

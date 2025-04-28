@@ -44,6 +44,7 @@ func Recommendation(data *RecommendationViewModel) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		nextRecommendationUrl := models.GetNextRecommendationUrl(data.MovieId, data.Recommendations, data.CurrentRecommendationId, &data.Settings.Autoplay)
+		getWatchProvidersUrl := models.GetWatchProvidersUrl(data.MovieId, data.CurrentRecommendationId)
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"recommendations-container\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -81,12 +82,22 @@ func Recommendation(data *RecommendationViewModel) templ.Component {
 			NextRecommendationUrl: nextRecommendationUrl,
 			LikeUrl:               models.GetMaybeUrl(data.MovieId, data.CurrentRecommendationId),
 			SkipUrl:               models.GetSkipUrl(data.MovieId, data.CurrentRecommendationId),
-			WatchUrl:              models.GetWatchUrl(data.MovieId, data.CurrentRecommendationId),
+			WatchUrl:              getWatchProvidersUrl,
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = components.WatchProviders(&components.WatchProvidersViewModel{
+			WatchProvidersUrl: getWatchProvidersUrl,
+		}).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

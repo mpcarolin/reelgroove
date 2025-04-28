@@ -16,6 +16,7 @@ type RecommendationViewModel struct {
 
 templ Recommendation(data *RecommendationViewModel) {
     {{ nextRecommendationUrl := models.GetNextRecommendationUrl(data.MovieId, data.Recommendations, data.CurrentRecommendationId, &data.Settings.Autoplay) }}
+    {{ getWatchProvidersUrl := models.GetWatchProvidersUrl(data.MovieId, data.CurrentRecommendationId) }}
 	<div class="recommendations-container">
 		@components.RecommendationProgressBanner(components.RecommendationProgressBannerViewModel{
             MovieId: data.MovieId,
@@ -35,9 +36,12 @@ templ Recommendation(data *RecommendationViewModel) {
                     NextRecommendationUrl: nextRecommendationUrl,
                     LikeUrl: models.GetMaybeUrl(data.MovieId, data.CurrentRecommendationId),
                     SkipUrl: models.GetSkipUrl(data.MovieId, data.CurrentRecommendationId),
-                    WatchUrl: models.GetWatchUrl(data.MovieId, data.CurrentRecommendationId),
+                    WatchUrl: getWatchProvidersUrl,
                 })
 			</div>
+            @components.WatchProviders(&components.WatchProvidersViewModel{
+                WatchProvidersUrl: getWatchProvidersUrl,
+            })
 		</div>
 	</div>
 }

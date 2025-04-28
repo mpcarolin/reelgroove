@@ -38,6 +38,7 @@ func main() {
 	e.GET("/movies", handlers.SearchMovies)
 	e.GET("/movie/:movieId/recommendations", handlers.GetRecommendations)
 	e.GET("/movie/:movieId/recommendations/:recommendationId", handlers.GetRecommendationById)
+	e.GET("/movie/:movieId/recommendations/:recommendationId/watchproviders", handlers.GetWatchProviders)
 	e.PUT("/movie/:movieId/recommendations/:recommendationId/like", handlers.LikeRecommendation)
 	e.PUT("/movie/:movieId/recommendations/:recommendationId/skip", handlers.SkipRecommendation)
 	e.PUT("/movie/:movieId/recommendations/:recommendationId/settings", handlers.UpdateRecommendationSettings)

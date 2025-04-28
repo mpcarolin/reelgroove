@@ -52,3 +52,22 @@
     justify-content: space-between;
     width: 100%;
 }
+
+.watch-providers-streaming-list {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.watch-providers-streaming-list figure {
+    width: 100px;
+    overflow: hidden;
+}
+
+.watch-providers-streaming-list figure small {
+    width: 100%;
+    font-size: 0.5em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

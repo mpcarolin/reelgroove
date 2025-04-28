@@ -21,10 +21,6 @@ func GetMaybeUrl(movieId int, recommendationId int) string {
 	return "/movie/" + strconv.Itoa(movieId) + "/recommendations/" + strconv.Itoa(recommendationId) + "/maybe"
 }
 
-func GetWatchUrl(movieId int, recommendationId int) string {
-	return "/movie/" + strconv.Itoa(movieId) + "/recommendations/" + strconv.Itoa(recommendationId) + "/watch"
-}
-
 func GetRecommendationUrl(movieId int, recommendationId int, autoplay *bool) string {
 	queryString := ""
 	if autoplay != nil && *autoplay {
@@ -46,4 +42,9 @@ func GetNextRecommendationUrl(movieId int, recommendations []Movie, currentRecom
         queryString = "?autoplay=on"
     }
 	return "/movie/" + strconv.Itoa(movieId) + "/recommendations/" + strconv.Itoa(nextRecommendationId) + queryString
+}
+
+
+func GetWatchProvidersUrl(movieId int, recommendationId int) string {
+	return "/movie/" + strconv.Itoa(movieId) + "/recommendations/" + strconv.Itoa(recommendationId) + "/watchproviders"
 }
