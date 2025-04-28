@@ -7,30 +7,25 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v4"
-	"github.com/mpcarolin/cinematch-server/internal/components"
 	"github.com/mpcarolin/cinematch-server/internal/models"
 	"github.com/mpcarolin/cinematch-server/internal/services"
+	"github.com/mpcarolin/cinematch-server/internal/ui/components"
 )
 
-func cleanUpSearchQuery(search string) string {
-	return strings.TrimSpace(strings.ToLower(search))
-}
-
-func GetMovieSearchResults(c echo.Context) error {
+func SearchMovies(c echo.Context) error {
 	search := c.QueryParam("search")
 	searchQuery := cleanUpSearchQuery(search)
 	ctx := c.(*models.RequestContext)
 
-	slog.Info("GetMovieSearchResults", "searchQuery", searchQuery)
+	slog.Info("SearchMovies", "searchQuery", searchQuery)
 
 	response, err := services.SearchMoviesCached(ctx.Cache, searchQuery)
 	if err != nil {
 		slog.Error("Error fetching movie search results", "error", err)
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
-	movies := response.Results
 	searchResults := []models.Movie{}
-	for _, movie := range movies {
+	for _, movie := range response.Results {
 		if strings.Contains(strings.ToLower(movie.Title), searchQuery) {
 			searchResults = append(searchResults, movie)
 		}
@@ -39,4 +34,8 @@ func GetMovieSearchResults(c echo.Context) error {
 	component := components.MovieResults(searchResults)
 
 	return component.Render(context.Background(), c.Response().Writer)
+}
+
+func cleanUpSearchQuery(search string) string {
+	return strings.TrimSpace(strings.ToLower(search))
 }

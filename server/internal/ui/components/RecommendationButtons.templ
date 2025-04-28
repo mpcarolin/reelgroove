@@ -1,0 +1,41 @@
+package components
+
+import (
+	"github.com/mpcarolin/cinematch-server/internal/models"
+)
+
+templ RecommendationButtons(context models.TemplateContext) {
+	<div class="recommendations-buttons-container">
+		<button
+			id="maybe-button"
+			class="trailer-response-button"
+			hx-put={ models.GetMaybeUrl(context) }
+			hx-target=".recommendations-container"
+			hx-swap="outerHTML"
+			hx-push-url={ models.GetNextRecommendationUrl(context) }
+		>
+			<i class="iconoir-thumbs-up"></i>
+			Like
+		</button>
+		<button
+			id="skip-button"
+			class="trailer-response-button"
+			hx-put={ models.GetSkipUrl(context) }
+			hx-target=".recommendations-container"
+			hx-swap="outerHTML"
+		>
+			<i class="iconoir-thumbs-down"></i>
+			Skip
+		</button>
+		<button
+			id="watch-button"
+			class="trailer-response-button"
+			hx-put={ models.GetWatchUrl(context) }
+			hx-target=".recommendations-container"
+			hx-swap="outerHTML"
+		>
+			<i class="iconoir-movie"></i>
+			Watch
+		</button>
+	</div>
+}

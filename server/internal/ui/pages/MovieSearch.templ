@@ -1,7 +1,11 @@
-package components
+package pages
+
+import (
+	"github.com/mpcarolin/cinematch-server/internal/ui/components"
+)
 
 templ MovieSearch() {
-	<div>
+	<section>
 		<h2>To start, tell us a movie you like</h2>
 		<p>We'll use it to make our recommendations for trailers to watch</p>
 		<form
@@ -23,13 +27,12 @@ templ MovieSearch() {
 			<input type="submit" value="Search"/>
 		</form>
 		<table id="search-results"></table>
-		<div id="search-results-indicator" class="htmx-indicator">
-			<progress></progress>
-		</div>
-	</div>
+		@components.ProgressIndicator("search-results-indicator")
+	</section>
 	<script>
     function clearMovieSearch () {
         document.getElementById("search-results").innerHTML = "";
     }
     </script>
 }
+

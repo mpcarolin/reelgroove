@@ -1,5 +1,11 @@
-package components
+package ui
 
+import (
+	"github.com/mpcarolin/cinematch-server/internal/ui/components"
+)
+
+// Top-level template for all pages. Accepted main content component which is wrapped in
+// header and footer
 templ Page(mainContents templ.Component) {
 	<html data-theme="dark">
 		<head>
@@ -41,11 +47,21 @@ templ Page(mainContents templ.Component) {
 				rel="stylesheet"
 				href="/assets/css/trailer-settings.css"
 			/>
+            <link
+                rel="stylesheet"
+                href="/assets/css/page.css"
+            />
 		</head>
 		<body hx-boost="true">
-			@Header()
-			@Main(mainContents)
-			@Footer()
+			@components.Header()
+			@main(mainContents)
+			@components.Footer()
 		</body>
 	</html>
+}
+
+templ main(mainContents templ.Component) {
+    <main>
+        @mainContents
+    </main>
 }

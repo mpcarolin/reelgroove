@@ -1,0 +1,47 @@
+package components
+
+import (
+	"github.com/mpcarolin/cinematch-server/internal/models"
+	"slices"
+	"strconv"
+)
+
+// TODO: move
+func IsMovieLiked(context models.TemplateContext, recommendationId int) bool {
+	return slices.Contains(context.UserLikes, strconv.Itoa(recommendationId))
+}
+
+templ RecommendationProgressBanner(context models.TemplateContext) {
+	<nav class="recommendation-progress-nav">
+		<ul class="recommendation-progress-banner-list">
+			for idx, recommendation := range context.Recommendations {
+				{{ matchesMovie := recommendation.Id == context.Trailer.MovieId }}
+				{{ liked := IsMovieLiked(context, recommendation.Id) }}
+				<li class={ "recommendation-progress-banner-trailer-list-item" }>
+					<a href={ templ.SafeURL(models.GetRecommendationUrl(context.MovieId, recommendation.Id, &context.Autoplay)) }>
+						<div class="recommendation-progress-banner-trailer-list-item-poster-container">
+							<img
+								class={
+									"recommendation-progress-banner-trailer-poster",
+									templ.KV("blur", !matchesMovie && !liked),
+									templ.KV("liked", liked && !matchesMovie),
+									templ.KV("active", matchesMovie),
+								}
+								src={ recommendation.FullPosterURL() }
+								alt={ recommendation.Title }
+								title={ recommendation.Title }
+							/>
+							if liked {
+								<i class="iconoir-thumbs-up recommendation-progress-banner-trailer-like-icon"></i>
+							}
+						</div>
+					</a>
+				</li>
+				if idx < len(context.Recommendations) - 1 {
+					<i class="recommendation-progress-banner-trailer-connector iconoir-git-commit"></i>
+				}
+			}
+			<i class="more-recommendations-icon iconoir-dot-arrow-right"></i>
+		</ul>
+	</nav>
+}

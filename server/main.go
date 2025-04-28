@@ -35,9 +35,9 @@ func main() {
 
 	e.GET("/about", handlers.GetAbout)
 	e.GET("/home", handlers.GetHome)
-	e.GET("/movies", handlers.GetMovieSearchResults)
+	e.GET("/movies", handlers.SearchMovies)
 	e.GET("/movie/:movieId/recommendations", handlers.GetRecommendations)
-	e.GET("/movie/:movieId/recommendations/:recommendationId", handlers.GetSingleRecommendation)
+	e.GET("/movie/:movieId/recommendations/:recommendationId", handlers.GetRecommendationById)
 	e.PUT("/movie/:movieId/recommendations/:recommendationId/:action", handlers.HandleRecommendationAction)
 	e.Static("/assets", "assets")
 
