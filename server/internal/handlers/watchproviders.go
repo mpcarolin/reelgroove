@@ -16,11 +16,6 @@ import (
 func GetWatchProviders(c echo.Context) error {
 	ctx := c.(*models.RequestContext)
 
-	// movieId, err := strconv.Atoi(c.Param("movieId"))
-	// if err != nil {
-	// 	return c.String(http.StatusBadRequest, "Invalid movie id")
-	// }
-
 	recommendationId, err := strconv.Atoi(c.Param("recommendationId"))
 	if err != nil {
 		return c.String(http.StatusBadRequest, "Invalid recommendation id")

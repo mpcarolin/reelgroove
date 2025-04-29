@@ -7,5 +7,5 @@ templ-dev:
 dev:
 	set -a; source .env; set +a; /Users/mpcarolin/go/bin/air .
 
-dlv:
+debug:
 	set -a; source .env; set +a; /Users/mpcarolin/go/bin/dlv debug .

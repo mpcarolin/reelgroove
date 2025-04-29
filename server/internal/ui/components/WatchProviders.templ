@@ -12,36 +12,55 @@ type WatchProvidersViewModel struct {
 templ WatchProviders(data *WatchProvidersViewModel) {
 	<div id="watch-options">
 		<h2>Watch Options</h2>
-        // TODO: add that loading indicator
-		<div id="watch-provider-all-options" hx-trigger="intersect once" hx-get={ data.WatchProvidersUrl } hx-swap="innerHTML">
-			@WatchProvidersAllOptions(data.WatchProviders)
+		<div
+			id="watch-provider-all-options"
+			hx-trigger="intersect once"
+			hx-get={ data.WatchProvidersUrl }
+			hx-swap="innerHTML"
+			hx-indicator="#watch-providers-indicator"
+		>
+			if data.WatchProviders != nil {
+				@WatchProvidersAllOptions(data.WatchProviders)
+			}
 		</div>
+		@ProgressIndicator("watch-providers-indicator")
 	</div>
 }
 
 templ WatchProvidersAllOptions(data *models.WatchProviders) {
-	<div>
-		<div class="watch-providers-options">
-            <h3>Streaming</h3>
-			@WatchProviderOptions(data.Flatrate)
-            <h3>Rent</h3>
-			@WatchProviderOptions(data.Rent)
-            <h3>Buy</h3>
-			@WatchProviderOptions(data.Buy)
-		</div>
-		<a id="watch-options-end" href={ templ.SafeURL(data.Link) }>More Info</a>
-	</div>
+	<article id="watch-providers-options">
+		<h5>Stream</h5>
+		@WatchProviderOptions(data.Flatrate, data.Link)
+        <hr />
+		<h5>Rent</h5>
+		@WatchProviderOptions(data.Rent, data.Link)
+        <hr />
+		<h5>Buy</h5>
+		@WatchProviderOptions(data.Buy, data.Link)
+        <footer>
+            <aside>
+                <small>
+                Data provided by <a href="https://www.themoviedb.org/" target="_blank">The Movie DB</a>
+                and <a href="https://www.justwatch.com/" target="_blank">JustWatch</a>
+                </small>
+            </aside>
+        </footer>
+	</article>
 }
 
-templ WatchProviderOptions(streamingOptions []models.WatchProviderOption) {
+templ WatchProviderOptions(streamingOptions []models.WatchProviderOption, detailsLink string) {
 	<div class="watch-providers-streaming-list">
-		for _, provider := range streamingOptions {
-			<figure>
-				<img src={ provider.FullLogoURL() } alt={ provider.ProviderName }/>
-				<figcaption>
-					<small>{ provider.ProviderName }</small>
-				</figcaption>
-			</figure>
+		if len(streamingOptions) == 0 {
+			<small>N/A</small>
+		} else {
+			for _, provider := range streamingOptions {
+				<figure>
+					<img src={ provider.FullLogoURL() } alt={ provider.ProviderName }/>
+					<figcaption>
+						<a target="_blank" href={ templ.SafeURL(detailsLink) }><small>{ provider.ProviderName }</small></a>
+					</figcaption>
+				</figure>
+			}
 		}
 	</div>
 }

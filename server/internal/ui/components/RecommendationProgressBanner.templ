@@ -12,10 +12,16 @@ type RecommendationProgressBannerViewModel struct {
     Recommendations []models.Movie
     UserLikes []string
     Settings models.RecommendationSettings
+    OOB bool
 }
 
 templ RecommendationProgressBanner(data RecommendationProgressBannerViewModel) {
-	<nav class="recommendation-progress-nav">
+	<nav
+        id="recommendation-progress-nav"
+        if data.OOB {
+            hx-swap-oob="true"
+        }
+    >
 		<ul class="recommendation-progress-banner-list">
 			for idx, recommendation := range data.Recommendations {
 				{{ matchesMovie := recommendation.Id == data.CurrentRecommendationId }}

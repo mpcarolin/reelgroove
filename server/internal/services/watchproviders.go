@@ -7,7 +7,6 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
-	"net/url"
 	"slices"
 	"strconv"
 	"time"
@@ -26,14 +25,13 @@ func GetWatchProvidersCached(cache *cache.Cache[string], movieId int) (*models.W
 }
 
 func GetWatchProviders(movieId int) (*models.WatchProviders, error) {
-	// response, err := requestGetWatchProviders(movieId)
-	// if (err != nil) {
-	// 	return nil, err
-	// }
-	response := MockWatchProvidersResponse
+	response, err := requestGetWatchProviders(movieId)
+	if (err != nil) {
+		return nil, err
+	}
 
 	var watchProvidersResponse models.WatchProvidersResponse
-	err := json.Unmarshal([]byte(response), &watchProvidersResponse)
+	err = json.Unmarshal([]byte(response), &watchProvidersResponse)
 	if err != nil {
 		slog.Error("error unmarshalling mock provider response", "error", err)
 		return nil, err
@@ -52,8 +50,8 @@ func GetWatchProviders(movieId int) (*models.WatchProviders, error) {
 	return &watchProviders, nil
 }
 
-func requestGetWatchProviders(search string) (string, error) {
-	url := fmt.Sprintf("https://api.themoviedb.org/3/search/movie?query=%s&include_adult=false&language=en-US&page=1", url.QueryEscape(search))
+func requestGetWatchProviders(movieId int) (string, error) {
+	url := fmt.Sprintf("https://api.themoviedb.org/3/movie/%d/watch/providers", movieId)
 
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Add("accept", "application/json")
@@ -61,7 +59,7 @@ func requestGetWatchProviders(search string) (string, error) {
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		slog.Error("error sending search movies request", "error", err)
+		slog.Error("error fetching watch providers", "error", err)
 		return "", err
 	}
 	defer res.Body.Close()
@@ -71,17 +69,17 @@ func requestGetWatchProviders(search string) (string, error) {
 	case code >= 200 && code <= 299:
 		body, err := io.ReadAll(res.Body)
 		if err != nil {
-			slog.Error("error reading search movies response", "error", err)
+			slog.Error("error reading watch providers response", "error", err)
 			return "", err
 		}
 		return string(body), nil
 	case code == 400:
-		msg := fmt.Sprintf("Bad input! Maybe query is bad. Query: %s. Code: %d, Message: %s", search, code, res.Status)
+		msg := fmt.Sprintf("Bad input! Maybe movie id is bad. Movie id: %d. Code: %d, Message: %s", movieId, code, res.Status)
 		slog.Error(msg)
 		return "", errors.New("bad input")
 	default:
-		msg := fmt.Sprintf("Could not get movie search results from api. Code: %d, Message: %s", code, res.Status)
+		msg := fmt.Sprintf("Could not get watch providers from api. Code: %d, Message: %s", code, res.Status)
 		slog.Error(msg)
-		return "", errors.New("API did not provide movies for search query")
+		return "", errors.New("API did not provide watch providers")
 	}
 }

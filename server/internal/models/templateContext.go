@@ -17,8 +17,8 @@ func GetSkipUrl(movieId int, recommendationId int) string {
 	return "/movie/" + strconv.Itoa(movieId) + "/recommendations/" + strconv.Itoa(recommendationId) + "/skip"
 }
 
-func GetMaybeUrl(movieId int, recommendationId int) string {
-	return "/movie/" + strconv.Itoa(movieId) + "/recommendations/" + strconv.Itoa(recommendationId) + "/maybe"
+func GetLikeUrl(movieId int, recommendationId int) string {
+	return "/movie/" + strconv.Itoa(movieId) + "/recommendations/" + strconv.Itoa(recommendationId) + "/like"
 }
 
 func GetRecommendationUrl(movieId int, recommendationId int, autoplay *bool) string {

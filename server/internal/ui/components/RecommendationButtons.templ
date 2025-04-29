@@ -14,8 +14,7 @@ templ RecommendationButtons(data RecommendationButtonsViewModel) {
 			class="trailer-response-button"
 			hx-put={ data.LikeUrl }
 			hx-target=".recommendations-container"
-			hx-swap="outerHTML"
-			hx-push-url={ data.NextRecommendationUrl }
+			hx-swap="outerHTML show:top"
 		>
 			<i class="iconoir-thumbs-up"></i>
 			Like
@@ -25,16 +24,15 @@ templ RecommendationButtons(data RecommendationButtonsViewModel) {
 			class="trailer-response-button"
 			hx-put={ data.SkipUrl }
 			hx-target=".recommendations-container"
-			hx-swap="outerHTML"
+			hx-swap="outerHTML show:top"
 		>
 			<i class="iconoir-thumbs-down"></i>
 			Skip
 		</button>
 		<button
 			id="watch-button"
-            hx-get={ data.WatchUrl }
-            hx-target="#watch-provider-all-options"
-            hx-swap="innerHTML scroll:bottom"
+            onclick="document.getElementById('watch-provider-all-options').scrollIntoView({ behavior: 'smooth' })"
+            hx-swap="none show:bottom"
 		>
 			<i class="iconoir-movie"></i>
             Watch

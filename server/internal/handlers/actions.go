@@ -22,9 +22,20 @@ func LikeRecommendation(c echo.Context) error {
 		return err
 	}
 
+	// add the current recommendation to the user's likes cookie, then update the cookie
 	recommendationViewModel.UserLikes = append(recommendationViewModel.UserLikes, strconv.Itoa(recommendationViewModel.CurrentRecommendationId))
 	userLikesCookie := utils.CreateUserLikesCookie(recommendationViewModel.UserLikes)
 	http.SetCookie(c.Response().Writer, userLikesCookie)
+
+	// update the current recommendation id to the next recommendation id
+	recommendationViewModel.CurrentRecommendationId = recommendationViewModel.NextRecommendationId
+	recommendationViewModel.NextRecommendationId = GetNextRecommendationId(recommendationViewModel.Recommendations, recommendationViewModel.NextRecommendationId)
+
+	// update the client url to the next recommendation
+	c.Response().Header().Set(
+		"HX-Push-Url",
+		models.GetRecommendationUrl(recommendationViewModel.MovieId, recommendationViewModel.NextRecommendationId, &recommendationViewModel.Settings.Autoplay),
+	)
 
 	return pages.Recommendation(recommendationViewModel).Render(context.Background(), c.Response().Writer)
 }
@@ -40,9 +51,18 @@ func SkipRecommendation(c echo.Context) error {
 	userLikesCookie := utils.CreateUserLikesCookie(recommendationViewModel.UserLikes)
 	http.SetCookie(c.Response().Writer, userLikesCookie)
 
+	// update the current recommendation id to the next recommendation id
+	recommendationViewModel.CurrentRecommendationId = recommendationViewModel.NextRecommendationId
+	recommendationViewModel.NextRecommendationId = GetNextRecommendationId(recommendationViewModel.Recommendations, recommendationViewModel.NextRecommendationId)
+
+	// update the client url to the next recommendation
+	c.Response().Header().Set(
+		"HX-Push-Url",
+		models.GetRecommendationUrl(recommendationViewModel.MovieId, recommendationViewModel.NextRecommendationId, &recommendationViewModel.Settings.Autoplay),
+	)
+
 	return pages.Recommendation(recommendationViewModel).Render(context.Background(), c.Response().Writer)
 }
-
 
 // TODO: This goes somewhere else...
 // Initializes a recommendation view model, given the path and query params of the current request url,
@@ -70,9 +90,7 @@ func InitRecommendationViewModel(c echo.Context) (*pages.RecommendationViewModel
 		return nil, c.String(http.StatusInternalServerError, err.Error())
 	}
 
-	currentRecommendationIndex := slices.IndexFunc(recommendations.Results, func(recommendation models.Movie) bool { return recommendation.Id == recommendationId })
-	nextRecommendationIndex := math.Min(float64(currentRecommendationIndex+1), float64(len(recommendations.Results)-1))
-	nextRecommendationId := recommendations.Results[int(nextRecommendationIndex)].Id
+	nextRecommendationId := GetNextRecommendationId(recommendations.Results, recommendationId)
 
 	nextTrailer, err := services.GetBestMovieTrailerCached(ctx.Cache, nextRecommendationId)
 	if err != nil {
@@ -82,6 +100,7 @@ func InitRecommendationViewModel(c echo.Context) (*pages.RecommendationViewModel
 	recommendationViewModel := pages.RecommendationViewModel{
 		MovieId:                 movieId,
 		CurrentRecommendationId: recommendationId,
+		NextRecommendationId:    nextRecommendationId,
 		Recommendations:         recommendations.Results,
 		UserLikes:               userLikes,
 		Trailer:                 nextTrailer,
@@ -89,6 +108,12 @@ func InitRecommendationViewModel(c echo.Context) (*pages.RecommendationViewModel
 	}
 
 	return &recommendationViewModel, nil
+}
+
+func GetNextRecommendationId(recommendations []models.Movie, currentRecommendationId int) int {
+	currentRecommendationIndex := slices.IndexFunc(recommendations, func(recommendation models.Movie) bool { return recommendation.Id == currentRecommendationId })
+	nextRecommendationIndex := math.Min(float64(currentRecommendationIndex+1), float64(len(recommendations)-1))
+	return recommendations[int(nextRecommendationIndex)].Id
 }
 
 func NewRecommendationSettings(c echo.Context) models.RecommendationSettings {
@@ -101,11 +126,11 @@ func NewRecommendationSettings(c echo.Context) models.RecommendationSettings {
 	// 2. form data
 	// 3. fall back to existing client url value
 	autoplay := false
-	if (query != "") {
+	if query != "" {
 		autoplay = query == "on"
-	} else if (formValue != "") {
+	} else if formValue != "" {
 		autoplay = formValue == "on"
-	} else if (clientUrl != nil) {
+	} else if clientUrl != nil {
 		autoplay = clientUrl.Query().Get("autoplay") == "on"
 	}
 

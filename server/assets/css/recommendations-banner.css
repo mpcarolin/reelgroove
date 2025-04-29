@@ -1,4 +1,4 @@
-.recommendation-progress-nav {
+#recommendation-progress-nav {
     display: flex;
     flex-direction: row;
     align-items: start;

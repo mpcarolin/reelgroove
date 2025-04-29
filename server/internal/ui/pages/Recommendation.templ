@@ -8,6 +8,7 @@ import (
 type RecommendationViewModel struct {
     MovieId int
 	CurrentRecommendationId int
+    NextRecommendationId int
     Recommendations []models.Movie
     UserLikes []string
 	Trailer *models.Trailer
@@ -34,7 +35,7 @@ templ Recommendation(data *RecommendationViewModel) {
                 })
                 @components.RecommendationButtons(components.RecommendationButtonsViewModel{
                     NextRecommendationUrl: nextRecommendationUrl,
-                    LikeUrl: models.GetMaybeUrl(data.MovieId, data.CurrentRecommendationId),
+                    LikeUrl: models.GetLikeUrl(data.MovieId, data.CurrentRecommendationId),
                     SkipUrl: models.GetSkipUrl(data.MovieId, data.CurrentRecommendationId),
                     WatchUrl: getWatchProvidersUrl,
                 })

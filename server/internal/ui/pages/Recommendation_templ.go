@@ -16,6 +16,7 @@ import (
 type RecommendationViewModel struct {
 	MovieId                 int
 	CurrentRecommendationId int
+	NextRecommendationId    int
 	Recommendations         []models.Movie
 	UserLikes               []string
 	Trailer                 *models.Trailer
@@ -80,7 +81,7 @@ func Recommendation(data *RecommendationViewModel) templ.Component {
 		}
 		templ_7745c5c3_Err = components.RecommendationButtons(components.RecommendationButtonsViewModel{
 			NextRecommendationUrl: nextRecommendationUrl,
-			LikeUrl:               models.GetMaybeUrl(data.MovieId, data.CurrentRecommendationId),
+			LikeUrl:               models.GetLikeUrl(data.MovieId, data.CurrentRecommendationId),
 			SkipUrl:               models.GetSkipUrl(data.MovieId, data.CurrentRecommendationId),
 			WatchUrl:              getWatchProvidersUrl,
 		}).Render(ctx, templ_7745c5c3_Buffer)
