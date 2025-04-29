@@ -185,7 +185,7 @@ func RecommendationProgressBanner(data RecommendationProgressBannerViewModel) te
 				}
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</ul><script>\n            // after htmx has swapped any content, ensure the current trailer we are watching is visible\n            document.addEventListener(\"htmx:afterSwap\", () => {\n                const activeTrailerPoster = document.getElementById(\"active-trailer-poster\");\n                activeTrailerPoster.scrollIntoView({ behavior: \"smooth\", inline: \"nearest\", block: \"nearest\" });\n            });\n\n            \n\n        </script></nav>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</ul><script>\n            // after htmx has content for the progress banner,\n            // ensure the current trailer we are watching is visible\n            document.addEventListener(\"htmx:afterSwap\", (e) => {\n                if (e.detail.target.id === \"recommendation-progress-nav\") {\n                    const activeTrailerPoster = document.getElementById(\"active-trailer-poster\");\n                    activeTrailerPoster.scrollIntoView({ behavior: \"smooth\", inline: \"nearest\", block: \"nearest\" });\n                }\n            });\n\n            \n\n        </script></nav>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

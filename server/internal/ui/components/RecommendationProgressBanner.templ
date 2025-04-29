@@ -57,10 +57,13 @@ templ RecommendationProgressBanner(data RecommendationProgressBannerViewModel) {
 			}
 		</ul>
         <script>
-            // after htmx has swapped any content, ensure the current trailer we are watching is visible
-            document.addEventListener("htmx:afterSwap", () => {
-                const activeTrailerPoster = document.getElementById("active-trailer-poster");
-                activeTrailerPoster.scrollIntoView({ behavior: "smooth", inline: "nearest", block: "nearest" });
+            // after htmx has content for the progress banner,
+            // ensure the current trailer we are watching is visible
+            document.addEventListener("htmx:afterSwap", (e) => {
+                if (e.detail.target.id === "recommendation-progress-nav") {
+                    const activeTrailerPoster = document.getElementById("active-trailer-poster");
+                    activeTrailerPoster.scrollIntoView({ behavior: "smooth", inline: "nearest", block: "nearest" });
+                }
             });
 
             
