@@ -28,7 +28,12 @@ templ RecommendationProgressBanner(data RecommendationProgressBannerViewModel) {
 				{{ liked := IsMovieLiked(data.UserLikes, recommendation.Id) }}
 				<li class={ "recommendation-progress-banner-trailer-list-item" }>
 					<a href={ templ.SafeURL(models.GetRecommendationUrl(data.MovieId, recommendation.Id, &data.Settings.Autoplay)) }>
-						<div class="recommendation-progress-banner-trailer-list-item-poster-container">
+						<div
+                            if matchesMovie {
+                                id="active-trailer-poster"
+                            }
+                            class="recommendation-progress-banner-trailer-list-item-poster-container"
+                        >
 							<img
 								class={
 									"recommendation-progress-banner-trailer-poster",
@@ -52,6 +57,13 @@ templ RecommendationProgressBanner(data RecommendationProgressBannerViewModel) {
 			}
 			<i class="more-recommendations-icon iconoir-dot-arrow-right"></i>
 		</ul>
+        <script>
+            // after htmx has swapped any content, ensure the current trailer we are watching is visible
+            document.addEventListener("htmx:afterSwap", () => {
+                const activeTrailerPoster = document.getElementById("active-trailer-poster");
+                activeTrailerPoster.scrollIntoView({ behavior: "smooth", inline: "nearest", block: "nearest" });
+            });
+        </script>
 	</nav>
 }
 

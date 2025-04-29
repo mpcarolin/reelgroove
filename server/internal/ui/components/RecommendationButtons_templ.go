@@ -12,7 +12,7 @@ type RecommendationButtonsViewModel struct {
 	NextRecommendationUrl string
 	LikeUrl               string
 	SkipUrl               string
-	WatchUrl              string
+	DiveInUrl             string
 }
 
 func RecommendationButtons(data RecommendationButtonsViewModel) templ.Component {
@@ -62,7 +62,16 @@ func RecommendationButtons(data RecommendationButtonsViewModel) templ.Component 
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" hx-target=\".recommendations-container\" hx-swap=\"outerHTML show:top\"><i class=\"iconoir-thumbs-down\"></i> Skip</button> <button id=\"watch-button\" onclick=\"document.getElementById(&#39;watch-provider-all-options&#39;).scrollIntoView({ behavior: &#39;smooth&#39; })\" hx-swap=\"none show:bottom\"><i class=\"iconoir-movie\"></i> Watch</button></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" hx-target=\".recommendations-container\" hx-swap=\"outerHTML show:top\"><i class=\"iconoir-thumbs-down\"></i> Skip</button><form action=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var4 templ.SafeURL = templ.SafeURL(data.DiveInUrl)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var4)))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" method=\"get\"><button id=\"watch-button\" type=\"submit\" data-tooltip=\"Start a new trailer reel with this movie!\" data-tooltip-position=\"bottom\"><i class=\"iconoir-movie\"></i> Dive In </button></form></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

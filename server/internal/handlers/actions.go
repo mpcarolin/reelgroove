@@ -64,9 +64,8 @@ func SkipRecommendation(c echo.Context) error {
 	return pages.Recommendation(recommendationViewModel).Render(context.Background(), c.Response().Writer)
 }
 
-// TODO: This goes somewhere else...
-// Initializes a recommendation view model, given the path and query params of the current request url,
-// and the user's likes from the cookie.
+// TODO: refactor. This is slightly confusing because it gets the NEXT recommendation id's trailer!
+// This idea of current and next recommendation ids is a little confusing.
 func InitRecommendationViewModel(c echo.Context) (*pages.RecommendationViewModel, error) {
 	ctx := c.(*models.RequestContext)
 

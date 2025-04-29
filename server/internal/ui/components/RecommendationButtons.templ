@@ -1,10 +1,10 @@
 package components
 
 type RecommendationButtonsViewModel struct {
-    NextRecommendationUrl string
-    LikeUrl string
-    SkipUrl string
-    WatchUrl string
+	NextRecommendationUrl string
+	LikeUrl               string
+	SkipUrl               string
+	DiveInUrl             string
 }
 
 templ RecommendationButtons(data RecommendationButtonsViewModel) {
@@ -29,13 +29,16 @@ templ RecommendationButtons(data RecommendationButtonsViewModel) {
 			<i class="iconoir-thumbs-down"></i>
 			Skip
 		</button>
-		<button
-			id="watch-button"
-            onclick="document.getElementById('watch-provider-all-options').scrollIntoView({ behavior: 'smooth' })"
-            hx-swap="none show:bottom"
-		>
-			<i class="iconoir-movie"></i>
-            Watch
-		</button>
+		<form action={ templ.SafeURL(data.DiveInUrl) } method="get">
+			<button
+				id="watch-button"
+				type="submit"
+				data-tooltip="Start a new trailer reel with this movie!"
+				data-tooltip-position="bottom"
+			>
+				<i class="iconoir-movie"></i>
+				Dive In 
+			</button>
+		</form>
 	</div>
 }

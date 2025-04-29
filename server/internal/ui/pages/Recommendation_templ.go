@@ -83,7 +83,7 @@ func Recommendation(data *RecommendationViewModel) templ.Component {
 			NextRecommendationUrl: nextRecommendationUrl,
 			LikeUrl:               models.GetLikeUrl(data.MovieId, data.CurrentRecommendationId),
 			SkipUrl:               models.GetSkipUrl(data.MovieId, data.CurrentRecommendationId),
-			WatchUrl:              getWatchProvidersUrl,
+			DiveInUrl:             models.GetDiveInUrl(data.CurrentRecommendationId),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

@@ -21,6 +21,10 @@ func GetLikeUrl(movieId int, recommendationId int) string {
 	return "/movie/" + strconv.Itoa(movieId) + "/recommendations/" + strconv.Itoa(recommendationId) + "/like"
 }
 
+func GetDiveInUrl(recommendationId int) string {
+	return "/movie/" + strconv.Itoa(recommendationId) + "/recommendations"
+}
+
 func GetRecommendationUrl(movieId int, recommendationId int, autoplay *bool) string {
 	queryString := ""
 	if autoplay != nil && *autoplay {

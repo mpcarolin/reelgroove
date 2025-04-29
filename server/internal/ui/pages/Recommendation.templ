@@ -37,7 +37,7 @@ templ Recommendation(data *RecommendationViewModel) {
                     NextRecommendationUrl: nextRecommendationUrl,
                     LikeUrl: models.GetLikeUrl(data.MovieId, data.CurrentRecommendationId),
                     SkipUrl: models.GetSkipUrl(data.MovieId, data.CurrentRecommendationId),
-                    WatchUrl: getWatchProvidersUrl,
+                    DiveInUrl: models.GetDiveInUrl(data.CurrentRecommendationId),
                 })
 			</div>
             @components.WatchProviders(&components.WatchProvidersViewModel{
