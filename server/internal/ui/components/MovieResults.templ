@@ -62,19 +62,23 @@ templ MovieResultsMobile(movies []models.Movie) {
                     class="search-result-row-link"
                     aria-label={ "View trailer reel for " + movie.Title }
                 >
-                    <article class="search-result-row">
-                        <img
-                            class="movie-result-poster"
-                            src={movie.FullPosterURL()}
-                            alt={ movie.Title + " poster" }
-                        />
-                        <div class="search-result-info">
-                            <h6>{ movie.Title }</h6>
-                            <small>{ movie.Overview }</small>
-                        </div>
-                    </article>
+                    @MovieResultCard(movie)
                 </a>
             </li>
 		}
 	</ul>
+}
+
+templ MovieResultCard(movie models.Movie) {
+    <article class="search-result-row">
+        <img
+            class="movie-result-poster"
+            src={movie.FullPosterURL()}
+            alt={ movie.Title + " poster" }
+        />
+        <div class="search-result-info">
+            <h6>{ movie.Title }</h6>
+            <small>{ movie.Overview }</small>
+        </div>
+    </article>
 }

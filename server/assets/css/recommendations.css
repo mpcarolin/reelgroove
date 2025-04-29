@@ -78,6 +78,13 @@
     width: 100%;
 }
 
+
 #watch-providers-options {
     margin-inline: 15px;
+}
+
+.recommendations-trailer-info-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
 }

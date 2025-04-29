@@ -1,6 +1,9 @@
 package pages
 
 import (
+	"strconv"
+	"slices"
+
 	"github.com/mpcarolin/cinematch-server/internal/models"
 	"github.com/mpcarolin/cinematch-server/internal/ui/components"
 )
@@ -47,9 +50,40 @@ templ Recommendation(data *RecommendationViewModel) {
                     DiveInUrl: models.GetDiveInUrl(data.CurrentRecommendationId),
                 })
 			</div>
-            @components.WatchProviders(&components.WatchProvidersViewModel{
-                WatchProvidersUrl: getWatchProvidersUrl,
-            })
+            <div class="recommendations-trailer-info-container">
+                @SavedRecommendations(data)
+                @components.WatchProviders(&components.WatchProvidersViewModel{
+                    WatchProvidersUrl: getWatchProvidersUrl,
+                })
+            </div>
 		</div>
 	</section>
+}
+
+templ SavedRecommendations(data *RecommendationViewModel) {
+    <div class="saved-recommendations-container">
+        {{ title := "Saved Recommendations (" + strconv.Itoa(len(data.UserLikes)) + ")" }}
+        @Accordion( title, SavedRecommendationsContent(data), "Click to view all recommendations")
+    </div>
+}
+
+templ SavedRecommendationsContent(data *RecommendationViewModel) {
+    for _, recommendation := range data.Recommendations {
+        if slices.Contains(data.UserLikes, strconv.Itoa(recommendation.Id)) {
+            @components.MovieResultCard(recommendation)
+        }
+    }
+}
+
+// TODO: move to components
+templ Accordion(title string, content templ.Component, subtitle string) {
+    <article class="accordion">
+        <details class="accordion">
+            <summary>{ title }</summary>
+            @content
+        </details>
+        <footer>
+            <small>{ subtitle }</small>
+        </footer>
+    </article>
 }
