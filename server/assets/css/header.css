@@ -1,3 +1,30 @@
-header {
+#site-header {
     padding-bottom: 0px !important;
+}
+
+#header-links-mobile {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    #header-links-desktop {
+        display: none;
+    }
+
+    #header-links-mobile {
+        display: block;
+    }
+
+    #site-header nav {
+        display: flex;
+        flex-direction: column;
+    }
+
+    #site-header hgroup {
+        margin: 0px !important;
+    }
+
+    .header-tagline {
+        display: none;
+    }
 }

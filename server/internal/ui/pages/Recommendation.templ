@@ -7,18 +7,23 @@ import (
 
 type RecommendationViewModel struct {
     MovieId int
+    MovieTitle string
 	CurrentRecommendationId int
     NextRecommendationId int
     Recommendations []models.Movie
     UserLikes []string
 	Trailer *models.Trailer
+
     Settings models.RecommendationSettings
 }
+
+// Still deciding if we should show the trailer settings...
+var EnableTrailerSettings = false
 
 templ Recommendation(data *RecommendationViewModel) {
     {{ nextRecommendationUrl := models.GetNextRecommendationUrl(data.MovieId, data.Recommendations, data.CurrentRecommendationId, &data.Settings.Autoplay) }}
     {{ getWatchProvidersUrl := models.GetWatchProvidersUrl(data.MovieId, data.CurrentRecommendationId) }}
-	<div class="recommendations-container">
+	<section class="recommendations-container">
 		@components.RecommendationProgressBanner(components.RecommendationProgressBannerViewModel{
             MovieId: data.MovieId,
             CurrentRecommendationId: data.CurrentRecommendationId,
@@ -29,10 +34,12 @@ templ Recommendation(data *RecommendationViewModel) {
 		<div class="recommendations-trailer-buttons-container">
 			@components.YouTubeVideoEmbed(data.Trailer.Key, components.VideoConfig{Autoplay: data.Settings.Autoplay})
 			<div class="recommendations-trailer-actions-container">
-				@components.TrailerSettings(components.TrailerSettingsViewModel{
-                    Settings: data.Settings,
-                    UpdateSettingsUrl: models.GetUpdateSettingsUrl(data.MovieId, data.CurrentRecommendationId),
-                })
+				if EnableTrailerSettings {
+					@components.TrailerSettings(components.TrailerSettingsViewModel{
+                        Settings: data.Settings,
+                        UpdateSettingsUrl: models.GetUpdateSettingsUrl(data.MovieId, data.CurrentRecommendationId),
+                    })
+				}
                 @components.RecommendationButtons(components.RecommendationButtonsViewModel{
                     NextRecommendationUrl: nextRecommendationUrl,
                     LikeUrl: models.GetLikeUrl(data.MovieId, data.CurrentRecommendationId),
@@ -44,5 +51,5 @@ templ Recommendation(data *RecommendationViewModel) {
                 WatchProvidersUrl: getWatchProvidersUrl,
             })
 		</div>
-	</div>
+	</section>
 }

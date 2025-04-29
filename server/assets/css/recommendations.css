@@ -13,6 +13,7 @@
 .recommendations-buttons-container {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     justify-content: center;
     gap: 2em;
     width: fit-content;
@@ -71,4 +72,12 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+#watch-options-container {
+    width: 100%;
+}
+
+#watch-providers-options {
+    margin-inline: 15px;
 }

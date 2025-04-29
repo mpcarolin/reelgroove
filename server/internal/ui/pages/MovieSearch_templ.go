@@ -33,7 +33,7 @@ func MovieSearch() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<section><h2>To start, tell us a movie you like</h2><p>We'll use it to make our recommendations for trailers to watch</p><form hx-get=\"/movies\" hx-target=\"#search-results\" hx-indicator=\"#search-results-indicator\" hx-on:submit=\"clearMovieSearch()\" hx-swap=\"innerHTML\" role=\"search\"><input id=\"search\" type=\"search\" name=\"search\" placeholder=\"Search for one of your favorites...\" maxlength=\"20\" required> <input type=\"submit\" value=\"Search\"></form><table id=\"search-results\"></table>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<section id=\"movie-search\"><h2>First, choose a movie you like</h2><p>We'll use it to build a reel of trailers for you</p><form id=\"movie-search-form\" hx-get=\"/movies\" hx-target=\"#search-results\" hx-indicator=\"#search-results-indicator\" hx-on:submit=\"clearMovieSearch()\" hx-swap=\"innerHTML\" role=\"search\"><input id=\"search\" type=\"search\" name=\"search\" placeholder=\"Type a movie title...\" maxlength=\"20\" autofocus required> <input type=\"submit\" value=\"Search\"></form><table id=\"search-results\"></table>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

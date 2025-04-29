@@ -55,7 +55,6 @@ templ RecommendationProgressBanner(data RecommendationProgressBannerViewModel) {
 					<i class="recommendation-progress-banner-trailer-connector iconoir-git-commit"></i>
 				}
 			}
-			<i class="more-recommendations-icon iconoir-dot-arrow-right"></i>
 		</ul>
         <script>
             // after htmx has swapped any content, ensure the current trailer we are watching is visible
@@ -63,6 +62,9 @@ templ RecommendationProgressBanner(data RecommendationProgressBannerViewModel) {
                 const activeTrailerPoster = document.getElementById("active-trailer-poster");
                 activeTrailerPoster.scrollIntoView({ behavior: "smooth", inline: "nearest", block: "nearest" });
             });
+
+            
+
         </script>
 	</nav>
 }

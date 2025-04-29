@@ -5,10 +5,11 @@ import (
 )
 
 templ MovieSearch() {
-	<section>
-		<h2>To start, tell us a movie you like</h2>
-		<p>We'll use it to make our recommendations for trailers to watch</p>
+	<section id="movie-search">
+		<h2>First, choose a movie you like</h2>
+		<p>We'll use it to build a reel of trailers for you</p>
 		<form
+            id="movie-search-form"
 			hx-get="/movies"
 			hx-target="#search-results"
 			hx-indicator="#search-results-indicator"
@@ -20,8 +21,9 @@ templ MovieSearch() {
 				id="search"
 				type="search"
 				name="search"
-				placeholder="Search for one of your favorites..."
+				placeholder="Type a movie title..."
 				maxlength="20"
+                autofocus
 				required
 			/>
 			<input type="submit" value="Search"/>

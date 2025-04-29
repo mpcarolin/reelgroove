@@ -25,7 +25,17 @@ func SearchMoviesCached(cache *cache.Cache[string], search string) (*models.Movi
 	fetch := func() (*models.MovieSearchResponse, error) {
 		return SearchMovies(search)
 	}
-	return utils.WithCache(cache, cacheKey, fetch, 24*time.Hour);
+	res, err := utils.WithCache(cache, cacheKey, fetch, 24*time.Hour);
+	if err != nil {
+		return nil, err
+	}
+
+	// store each movie in the cache
+	for _, movie := range res.Results {
+		utils.StoreInCache(cache, fmt.Sprintf("movie_%d", movie.Id), &movie, 24*time.Hour)
+	}
+
+	return res, nil
 }
 
 func SearchMovies(search string) (*models.MovieSearchResponse, error) {
@@ -43,6 +53,64 @@ func SearchMovies(search string) (*models.MovieSearchResponse, error) {
 	slog.Info("search movies response for query " + search, "length=", searchResults.TotalResults)
 
 	return &searchResults, nil
+}
+
+func GetMovieCached(cache *cache.Cache[string], movieId int) (*models.Movie, error) {
+	cacheKey := fmt.Sprintf("movie_%d", movieId)
+	fetch := func() (*models.Movie, error) {
+		return GetMovie(movieId)
+	}
+	return utils.WithCache(cache, cacheKey, fetch, 24*time.Hour)
+}
+
+func GetMovie(movieId int) (*models.Movie, error) {
+	response, err := requestGetMovie(movieId)
+	if (err != nil) {
+		return nil, err
+	}
+
+	var movie models.Movie
+	err = json.Unmarshal([]byte(response), &movie)
+	if err != nil {
+		slog.Error("error unmarshalling mock movie response", "error", err)
+		return nil, err
+	}
+
+	return &movie, nil
+}
+
+func requestGetMovie(movieId int) (string, error) {
+	url := fmt.Sprintf("https://api.themoviedb.org/3/movie/%d?language=en-US", movieId)
+
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Add("accept", "application/json")
+	req.Header.Add("Authorization", "Bearer " + apiKey)
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		slog.Error("error sending movie request", "error", err)
+		return "", err
+	}
+	defer res.Body.Close()
+
+	code := res.StatusCode;
+	switch {
+	case code >= 200 && code <= 299:
+		body, err := io.ReadAll(res.Body)
+		if err != nil {
+			slog.Error("error reading movie response", "error", err)
+			return "", err
+		}
+		return string(body), nil
+	case code == 400:
+		msg := fmt.Sprintf("Bad input! Maybe query is bad. MovieId: %d. Code: %d, Message: %s", movieId, code, res.Status)
+		slog.Error(msg)
+		return "", errors.New("bad input")
+	default:
+		msg := fmt.Sprintf("Could not get movie from api. Code: %d, Message: %s", code, res.Status)
+		slog.Error(msg)
+		return "", errors.New("API did not provide movie")
+	}
 }
 
 func requestSearchMovies(search string) (string, error) {

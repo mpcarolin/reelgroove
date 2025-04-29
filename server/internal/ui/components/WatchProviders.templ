@@ -10,33 +10,24 @@ type WatchProvidersViewModel struct {
 }
 
 templ WatchProviders(data *WatchProvidersViewModel) {
-	<div id="watch-options">
-		<h2>Watch Options</h2>
-		<div
-			id="watch-provider-all-options"
-			hx-trigger="intersect once"
-			hx-get={ data.WatchProvidersUrl }
-			hx-swap="innerHTML"
-			hx-indicator="#watch-providers-indicator"
-		>
-			if data.WatchProviders != nil {
-				@WatchProvidersAllOptions(data.WatchProviders)
-			}
-		</div>
-		@ProgressIndicator("watch-providers-indicator")
-	</div>
-}
-
-templ WatchProvidersAllOptions(data *models.WatchProviders) {
-	<article id="watch-providers-options">
-		<h5>Stream</h5>
-		@WatchProviderOptions(data.Flatrate, data.Link)
-        <hr />
-		<h5>Rent</h5>
-		@WatchProviderOptions(data.Rent, data.Link)
-        <hr />
-		<h5>Buy</h5>
-		@WatchProviderOptions(data.Buy, data.Link)
+    <article id="watch-options-container">
+        <details id="watch-options" name="watch-options">
+            <summary>
+                Watch Options
+            </summary>
+            <div
+                id="watch-provider-all-options"
+                hx-trigger="revealed"
+                hx-get={ data.WatchProvidersUrl }
+                hx-swap="innerHTML"
+                hx-indicator="#watch-providers-indicator"
+            >
+                if data.WatchProviders != nil {
+                    @WatchProvidersAllOptions(data.WatchProviders)
+                }
+            </div>
+            @ProgressIndicator("watch-providers-indicator")
+        </details>
         <footer>
             <aside>
                 <small>
@@ -45,7 +36,20 @@ templ WatchProvidersAllOptions(data *models.WatchProviders) {
                 </small>
             </aside>
         </footer>
-	</article>
+    </article>
+}
+
+templ WatchProvidersAllOptions(data *models.WatchProviders) {
+	<section id="watch-providers-options">
+		<h6>Stream</h6>
+		@WatchProviderOptions(data.Flatrate, data.Link)
+        <hr />
+		<h6>Rent</h6>
+		@WatchProviderOptions(data.Rent, data.Link)
+        <hr />
+		<h6>Buy</h6>
+		@WatchProviderOptions(data.Buy, data.Link)
+	</section>
 }
 
 templ WatchProviderOptions(streamingOptions []models.WatchProviderOption, detailsLink string) {

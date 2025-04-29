@@ -2,39 +2,79 @@ package components
 
 import (
 	"github.com/mpcarolin/cinematch-server/internal/models"
+	"strconv"
 )
 
-
 templ MovieResults(movies []models.Movie) {
-    if len(movies) == 0 {
-        <p>0 movies found with that name</p>
-    } else {
-        <thead>
-            <tr>
-                <th>Poster</th>
-                <th>Title</th>
-                <th>Year</th>
-                <th />
-            </tr>
-        </thead>
-        <tbody id="search-results">
-            for _, movie := range movies {
-                <tr class="search-result-row">
-                        <td>
-                            if (movie.Poster != "") {
-                                <img class="movie-result-poster" src={movie.FullPosterURL()} alt={ movie.Title }/>
-                            }
-                        </td>
-                    <td><b>{ movie.Title }</b></td>
-                    <td>{ movie.ReleaseDate }</td>
-                    <td>
-                        <a href={templ.SafeURL(movie.RecommendationURL())}>
-                            <i class="table-action-icon iconoir-arrow-right"></i>
-                        </a>
-                    </td>
-                </tr>
-            }
-        </tbody>
+	if len(movies) == 0 {
+		<p>0 movies found with that name</p>
+	} else {
+		// @MovieResultsDesktop(movies)
+		@MovieResultsMobile(movies)
 	}
 }
 
+templ MovieResultsDesktop(movies []models.Movie) {
+	<div class="search-results-desktop">
+		<thead id="search-results-header">
+			<tr>
+				<th>Poster</th>
+				<th>Title</th>
+				<th>Year</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody id="search-results-body">
+			for _, movie := range movies {
+				{{ recommendationURL := templ.SafeURL(movie.RecommendationURL()) }}
+				<tr class="search-result-row">
+					<td>
+						<form action={ recommendationURL } method="get">
+							<input
+								type="image"
+								class="movie-result-poster"
+								src={ movie.FullPosterURL() }
+								alt={ movie.Title }
+								name={ "choose-movie-" + strconv.Itoa(movie.Id) }
+							/>
+						</form>
+					</td>
+					<td><b>{ movie.Title }</b></td>
+					<td class="search-result-release-date">{ movie.ReleaseDate }</td>
+					<td class="search-result-action">
+						<a href={ templ.SafeURL(movie.RecommendationURL()) }>
+							<i class="table-action-icon iconoir-arrow-right"></i>
+						</a>
+					</td>
+				</tr>
+			}
+		</tbody>
+	</div>
+}
+
+templ MovieResultsMobile(movies []models.Movie) {
+	<ul class="search-results-mobile">
+		for _, movie := range movies {
+			{{ recommendationURL := templ.SafeURL(movie.RecommendationURL()) }}
+            <li>
+                <a
+                    href={ recommendationURL }
+                    class="search-result-row-link"
+                    aria-label={ "View trailer reel for " + movie.Title }
+                >
+                    <article class="search-result-row">
+                        <img
+                            class="movie-result-poster"
+                            src={movie.FullPosterURL()}
+                            alt={ movie.Title + " poster" }
+                        />
+                        <div class="search-result-info">
+                            <h6>{ movie.Title }</h6>
+                            <small>{ movie.Overview }</small>
+                        </div>
+                    </article>
+                </a>
+            </li>
+		}
+	</ul>
+}

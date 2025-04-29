@@ -179,13 +179,13 @@ func RecommendationProgressBanner(data RecommendationProgressBannerViewModel) te
 				return templ_7745c5c3_Err
 			}
 			if idx < len(data.Recommendations)-1 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<i class=\"recommendation-progress-banner-trailer-connector iconoir-git-commit\"></i> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<i class=\"recommendation-progress-banner-trailer-connector iconoir-git-commit\"></i>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<i class=\"more-recommendations-icon iconoir-dot-arrow-right\"></i></ul><script>\n            // after htmx has swapped any content, ensure the current trailer we are watching is visible\n            document.addEventListener(\"htmx:afterSwap\", () => {\n                const activeTrailerPoster = document.getElementById(\"active-trailer-poster\");\n                activeTrailerPoster.scrollIntoView({ behavior: \"smooth\", inline: \"nearest\", block: \"nearest\" });\n            });\n        </script></nav>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</ul><script>\n            // after htmx has swapped any content, ensure the current trailer we are watching is visible\n            document.addEventListener(\"htmx:afterSwap\", () => {\n                const activeTrailerPoster = document.getElementById(\"active-trailer-poster\");\n                activeTrailerPoster.scrollIntoView({ behavior: \"smooth\", inline: \"nearest\", block: \"nearest\" });\n            });\n\n            \n\n        </script></nav>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

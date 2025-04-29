@@ -1,17 +1,35 @@
 package components
 
 templ Header() {
-	<header>
+	<header id="site-header">
 		<nav>
 			<hgroup>
-				<h1>Cinematch 🎥</h1>
-				<p>Anecdote for watchlist decision paralysis</p>
+				<h1>ReelGroove <span class="header-emoji">🎥</span></h1>
+				<p class="header-tagline">Anecdote for watchlist decision paralysis</p>
 			</hgroup>
-			<ul>
-				<li><a href="/home">Home</a></li>
-				<li><a href="/about">About</a></li>
-				<li><a href="/contact">Contact</a></li>
-			</ul>
+            @HeaderLinksMobile()
+            @HeaderLinksDesktop()
 		</nav>
 	</header>
+}
+
+templ HeaderLinks() {
+	<ul>
+		<li><a href="/home">Search</a></li>
+		<li><a href="/about">About</a></li>
+		<li><a href="/contact">Contact</a></li>
+	</ul>
+}
+
+
+templ HeaderLinksMobile() {
+    <div id="header-links-mobile">
+        @HeaderLinks()
+    </div>
+}
+
+templ HeaderLinksDesktop() {
+    <div id="header-links-desktop">
+        @HeaderLinks()
+    </div>
 }

@@ -15,13 +15,18 @@ import (
 
 type RecommendationViewModel struct {
 	MovieId                 int
+	MovieTitle              string
 	CurrentRecommendationId int
 	NextRecommendationId    int
 	Recommendations         []models.Movie
 	UserLikes               []string
 	Trailer                 *models.Trailer
-	Settings                models.RecommendationSettings
+
+	Settings models.RecommendationSettings
 }
+
+// Still deciding if we should show the trailer settings...
+var EnableTrailerSettings = false
 
 func Recommendation(data *RecommendationViewModel) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -46,7 +51,7 @@ func Recommendation(data *RecommendationViewModel) templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		nextRecommendationUrl := models.GetNextRecommendationUrl(data.MovieId, data.Recommendations, data.CurrentRecommendationId, &data.Settings.Autoplay)
 		getWatchProvidersUrl := models.GetWatchProvidersUrl(data.MovieId, data.CurrentRecommendationId)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"recommendations-container\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<section class=\"recommendations-container\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -72,12 +77,14 @@ func Recommendation(data *RecommendationViewModel) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = components.TrailerSettings(components.TrailerSettingsViewModel{
-			Settings:          data.Settings,
-			UpdateSettingsUrl: models.GetUpdateSettingsUrl(data.MovieId, data.CurrentRecommendationId),
-		}).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
+		if EnableTrailerSettings {
+			templ_7745c5c3_Err = components.TrailerSettings(components.TrailerSettingsViewModel{
+				Settings:          data.Settings,
+				UpdateSettingsUrl: models.GetUpdateSettingsUrl(data.MovieId, data.CurrentRecommendationId),
+			}).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
 		templ_7745c5c3_Err = components.RecommendationButtons(components.RecommendationButtonsViewModel{
 			NextRecommendationUrl: nextRecommendationUrl,
@@ -98,7 +105,7 @@ func Recommendation(data *RecommendationViewModel) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div></section>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

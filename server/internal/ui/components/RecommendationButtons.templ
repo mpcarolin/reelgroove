@@ -29,16 +29,21 @@ templ RecommendationButtons(data RecommendationButtonsViewModel) {
 			<i class="iconoir-thumbs-down"></i>
 			Skip
 		</button>
-		<form action={ templ.SafeURL(data.DiveInUrl) } method="get">
-			<button
-				id="watch-button"
-				type="submit"
-				data-tooltip="Start a new trailer reel with this movie!"
-				data-tooltip-position="bottom"
-			>
-				<i class="iconoir-movie"></i>
-				Dive In 
-			</button>
-		</form>
+		// @DiveInButton(data)
 	</div>
+}
+
+
+templ DiveInButton(data RecommendationButtonsViewModel) {
+	<form action={ templ.SafeURL(data.DiveInUrl) } method="get">
+		<button
+			id="watch-button"
+			type="submit"
+			data-tooltip="Start a new trailer reel with this movie!"
+			data-tooltip-position="bottom"
+		>
+			<i class="iconoir-movie"></i>
+			Dive In 
+		</button>
+	</form>
 }

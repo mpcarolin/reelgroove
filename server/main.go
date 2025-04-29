@@ -22,7 +22,7 @@ func main() {
 	// Middleware
 	e.Use(echoMiddleware.Logger())
 	e.Use(echoMiddleware.Recover())
-	e.Use(echoMiddleware.RateLimiter(echoMiddleware.NewRateLimiterMemoryStore(20)))
+	e.Use(echoMiddleware.RateLimiter(echoMiddleware.NewRateLimiterMemoryStore(35)))
 	e.Use(echoMiddleware.CORSWithConfig(utils.GetCORSConfig()))
 
 	e.Use(middleware.SetupRequestContext)

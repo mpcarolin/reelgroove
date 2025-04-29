@@ -9,3 +9,74 @@
 .table-action-icon {
     font-size: xx-large;
 }
+
+
+.search-results-mobile li {
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}   
+
+.search-result-row-link {
+    text-decoration: none !important;
+    color: inherit !important;
+}
+
+
+@media (max-width: 768px) {
+    #search-results-header {
+        display: none;
+    }
+
+    .search-result-release-date {
+        display: none;
+    }
+
+    .search-result-action {
+        display: none;
+    }
+
+    .search-results-mobile {
+        display: block;
+    }
+
+    .search-results-desktop {
+        display: none;
+    }
+
+}
+
+    .search-result-row {
+        display: flex;
+        cursor: pointer;
+        flex-direction: row;
+        gap: 1rem;
+        flex: 1;
+        max-height: 200px;
+        max-width: 90vw;
+        overflow: hidden;
+    }
+
+    .search-result-info {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        overflow: hidden;
+        width: 100%;
+    }
+
+    .search-result-info small {
+        display: -webkit-box;
+        display: -moz-box;
+        display: box;
+        -webkit-line-clamp: 5;
+        -moz-line-clamp: 5;
+        line-clamp: 5;
+        -webkit-box-orient: vertical;
+        -moz-box-orient: vertical;
+        box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+        max-height: 7.5em; /* 5 lines × 1.5em line height */
+    }
