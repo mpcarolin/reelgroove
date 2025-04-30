@@ -9,16 +9,9 @@ services:
     # command: ["tail", "-f", "/dev/null"]
     environment:
       - ENV=development
+      - REDIS_HOST=redis
     env_file:
-      - .env
-    develop:
-      watch:
-        - action: rebuild
-          path: go.mod
-        - action: sync+restart
-          path: ./server
-          ignore: requests/
-          target: /app
+      - ./server/.env
     depends_on:
       redis:
         condition: service_healthy
