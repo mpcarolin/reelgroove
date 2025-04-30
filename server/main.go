@@ -34,7 +34,7 @@ func main() {
 	})
 
 	e.GET("/about", handlers.GetAbout)
-	e.GET("/home", handlers.GetHome)
+	e.GET("/search", handlers.GetSearch)
 	e.GET("/movies", handlers.SearchMovies)
 	e.GET("/movie/:movieId/recommendations", handlers.GetRecommendations)
 	e.GET("/movie/:movieId/recommendations/:recommendationId", handlers.GetRecommendationById)

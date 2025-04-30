@@ -8,7 +8,7 @@ import (
 	"github.com/mpcarolin/cinematch-server/internal/ui/pages"
 )
 
-func GetHome(c echo.Context) error {
+func GetSearch(c echo.Context) error {
 	component := ui.Page(pages.MovieSearch())
 	return component.Render(context.Background(), c.Response().Writer)
 }
