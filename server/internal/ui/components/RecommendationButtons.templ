@@ -14,7 +14,7 @@ templ RecommendationButtons(data RecommendationButtonsViewModel) {
 			class="trailer-response-button"
 			hx-put={ data.LikeUrl }
 			hx-target=".recommendations-container"
-			hx-swap="outerHTML show:top"
+			hx-swap="outerHTML"
 		>
 			<i class="iconoir-thumbs-up"></i>
 			Like
@@ -24,7 +24,7 @@ templ RecommendationButtons(data RecommendationButtonsViewModel) {
 			class="trailer-response-button"
 			hx-put={ data.SkipUrl }
 			hx-target=".recommendations-container"
-			hx-swap="outerHTML show:top"
+			hx-swap="outerHTML"
 		>
 			<i class="iconoir-thumbs-down"></i>
 			Skip

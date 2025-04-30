@@ -49,7 +49,7 @@ func RecommendationButtons(data RecommendationButtonsViewModel) templ.Component 
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" hx-target=\".recommendations-container\" hx-swap=\"outerHTML show:top\"><i class=\"iconoir-thumbs-up\"></i> Like</button> <button id=\"skip-button\" class=\"trailer-response-button\" hx-put=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" hx-target=\".recommendations-container\" hx-swap=\"outerHTML\"><i class=\"iconoir-thumbs-up\"></i> Like</button> <button id=\"skip-button\" class=\"trailer-response-button\" hx-put=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -62,7 +62,7 @@ func RecommendationButtons(data RecommendationButtonsViewModel) templ.Component 
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" hx-target=\".recommendations-container\" hx-swap=\"outerHTML show:top\"><i class=\"iconoir-thumbs-down\"></i> Skip</button></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" hx-target=\".recommendations-container\" hx-swap=\"outerHTML\"><i class=\"iconoir-thumbs-down\"></i> Skip</button></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

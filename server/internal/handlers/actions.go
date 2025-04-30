@@ -32,9 +32,15 @@ func LikeRecommendation(c echo.Context) error {
 	recommendationViewModel.NextRecommendationId = GetNextRecommendationId(recommendationViewModel.Recommendations, recommendationViewModel.NextRecommendationId)
 
 	// update the client url to the next recommendation
+	nextRecommendationUrl := models.GetRecommendationUrl(recommendationViewModel.MovieId, recommendationViewModel.NextRecommendationId, &recommendationViewModel.Settings.Autoplay)
+	if nextRecommendationUrl == c.Request().Header.Get("HX-Current-Url") {
+		// TODO: redirect to a DIFFERENT PAGE that summarizes the saved recommendations
+		// OR get next page of recommendations
+	}
+
 	c.Response().Header().Set(
 		"HX-Push-Url",
-		models.GetRecommendationUrl(recommendationViewModel.MovieId, recommendationViewModel.NextRecommendationId, &recommendationViewModel.Settings.Autoplay),
+		nextRecommendationUrl,
 	)
 
 	return pages.Recommendation(recommendationViewModel).Render(context.Background(), c.Response().Writer)

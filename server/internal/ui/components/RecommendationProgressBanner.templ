@@ -27,7 +27,14 @@ templ RecommendationProgressBanner(data RecommendationProgressBannerViewModel) {
 				{{ matchesMovie := recommendation.Id == data.CurrentRecommendationId }}
 				{{ liked := IsMovieLiked(data.UserLikes, recommendation.Id) }}
 				<li class={ "recommendation-progress-banner-trailer-list-item" }>
-					<a href={ templ.SafeURL(models.GetRecommendationUrl(data.MovieId, recommendation.Id, &data.Settings.Autoplay)) }>
+                    {{ recommendationUrl := models.GetRecommendationUrl(data.MovieId, recommendation.Id, &data.Settings.Autoplay) }}
+					<a
+                        hx-get={ recommendationUrl }
+                        hx-target="body"
+                        hx-swap="outerHTML"
+                        id={"movie-poster-link-" + strconv.Itoa(recommendation.Id) }
+                        class="movie-poster-link"
+                    >
 						<div
                             if matchesMovie {
                                 id="active-trailer-poster"
@@ -57,17 +64,17 @@ templ RecommendationProgressBanner(data RecommendationProgressBannerViewModel) {
 			}
 		</ul>
         <script>
+            const scrollToActiveTrailer = () => {
+                const activeTrailerPoster = document.getElementById("active-trailer-poster");
+                activeTrailerPoster.scrollIntoViewIfNeeded({ behavior: "smooth", inline: "nearest", block: "nearest" });
+            }
             // after htmx has content for the progress banner,
             // ensure the current trailer we are watching is visible
             document.addEventListener("htmx:afterSwap", (e) => {
-                if (e.detail.target.id === "recommendation-progress-nav") {
-                    const activeTrailerPoster = document.getElementById("active-trailer-poster");
-                    activeTrailerPoster.scrollIntoView({ behavior: "smooth", inline: "nearest", block: "nearest" });
-                }
+                // if (e.detail.target.id === "recommendation-progress-nav") {
+                    scrollToActiveTrailer();
+                // }
             });
-
-            
-
         </script>
 	</nav>
 }

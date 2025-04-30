@@ -25,7 +25,6 @@ var EnableTrailerSettings = false
 
 templ Recommendation(data *RecommendationViewModel) {
     {{ nextRecommendationUrl := models.GetNextRecommendationUrl(data.MovieId, data.Recommendations, data.CurrentRecommendationId, &data.Settings.Autoplay) }}
-    {{ getWatchProvidersUrl := models.GetWatchProvidersUrl(data.MovieId, data.CurrentRecommendationId) }}
 	<section class="recommendations-container">
 		@components.RecommendationProgressBanner(components.RecommendationProgressBannerViewModel{
             MovieId: data.MovieId,
@@ -52,38 +51,56 @@ templ Recommendation(data *RecommendationViewModel) {
 			</div>
             <div class="recommendations-trailer-info-container">
                 @SavedRecommendations(data)
-                @components.WatchProviders(&components.WatchProvidersViewModel{
-                    WatchProvidersUrl: getWatchProvidersUrl,
-                })
             </div>
 		</div>
 	</section>
 }
 
 templ SavedRecommendations(data *RecommendationViewModel) {
-    <div class="saved-recommendations-container">
+    <div id="saved-recommendations-container">
         {{ title := "Saved Recommendations (" + strconv.Itoa(len(data.UserLikes)) + ")" }}
-        @Accordion( title, SavedRecommendationsContent(data), "Click to view all recommendations")
+        @Accordion( title, SavedRecommendationsContent(data), "")
     </div>
 }
 
 templ SavedRecommendationsContent(data *RecommendationViewModel) {
     for _, recommendation := range data.Recommendations {
         if slices.Contains(data.UserLikes, strconv.Itoa(recommendation.Id)) {
-            @components.MovieResultCard(recommendation)
+            {{ detailsURL := templ.SafeURL("https://www.themoviedb.org/movie/" + strconv.Itoa(recommendation.Id)) + "/watch" }}
+            <a href={detailsURL} class="saved-recommendation-link" target="_blank">
+                @components.MovieResultCard(recommendation)
+            </a>
         }
     }
 }
 
 // TODO: move to components
 templ Accordion(title string, content templ.Component, subtitle string) {
-    <article class="accordion">
-        <details class="accordion">
-            <summary>{ title }</summary>
-            @content
-        </details>
-        <footer>
-            <small>{ subtitle }</small>
-        </footer>
+    <details>
+        <summary>
+            {title}
+        </summary>
+        <p class="accordion-subtitle">Click on a movie to view streaming options</p>
+        @content
+    </details>
+}
+
+type CardProps struct {
+    Title string
+    Content templ.Component
+    Footer string
+}
+
+templ Card(props CardProps) {
+    <article>
+        <header>
+            {props.Title}
+        </header>
+        @props.Content
+        if props.Footer != "" {
+            <footer>
+                <small>{ props.Footer }</small>
+            </footer>
+        }
     </article>
 }
