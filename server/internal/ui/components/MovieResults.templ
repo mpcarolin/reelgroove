@@ -14,6 +14,7 @@ templ MovieResults(movies []models.Movie) {
 	}
 }
 
+// TODO: remove
 templ MovieResultsDesktop(movies []models.Movie) {
 	<div class="search-results-desktop">
 		<thead id="search-results-header">
@@ -52,6 +53,7 @@ templ MovieResultsDesktop(movies []models.Movie) {
 	</div>
 }
 
+// TODO: no longer just mobile
 templ MovieResultsMobile(movies []models.Movie) {
 	<ul class="search-results-mobile">
 		for _, movie := range movies {
@@ -62,23 +64,29 @@ templ MovieResultsMobile(movies []models.Movie) {
                     class="search-result-row-link"
                     aria-label={ "View trailer reel for " + movie.Title }
                 >
-                    @MovieResultCard(movie)
+                    @MovieResultCard(movie, recommendationURL)
                 </a>
             </li>
 		}
 	</ul>
 }
 
-templ MovieResultCard(movie models.Movie) {
-    <article class="search-result-row">
-        <img
-            class="movie-result-poster"
-            src={movie.FullPosterURL()}
-            alt={ movie.Title + " poster" }
-        />
-        <div class="search-result-info">
-            <h6>{ movie.Title }</h6>
-            <small>{ movie.Overview }</small>
-        </div>
-    </article>
+// TODO: move to components, generalize
+templ MovieResultCard(movie models.Movie, href templ.SafeURL) {
+    <a
+        href={ href }
+        class="search-result-row-link"
+    >
+        <article class="search-result-row">
+            <img
+                class="movie-result-poster"
+                src={movie.FullPosterURL()}
+                alt={ movie.Title + " poster" }
+            />
+            <div class="search-result-info">
+                <h6>{ movie.Title }</h6>
+                <small>{ movie.Overview }</small>
+            </div>
+        </article>
+    </a>
 }

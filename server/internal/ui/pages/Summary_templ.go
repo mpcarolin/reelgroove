@@ -8,7 +8,12 @@ package pages
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-func About() templ.Component {
+import (
+	"github.com/mpcarolin/cinematch-server/internal/models"
+	"github.com/mpcarolin/cinematch-server/internal/ui/components"
+)
+
+func Summary(recommendations []models.Movie) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -29,7 +34,18 @@ func About() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<article><header><hgroup><h1>About</h1></hgroup></header><p>Picture this: You're 45 minutes deep into \"What should we watch?\",  you've scrolled through every streaming service, read 37 conflicting reviews,  and somehow now you're watching cat videos on YouTube. Sound familiar?</p><p>One day it hit me - movie theaters had it right with those pre-show trailers. No endless choices, no review paralysis, just a few trailers and a good chance of finding something you want to watch.</p><p>Enter ReelGroove, your personal movie matchmaker. It cuts through the noise to deliver you <b>reels</b>: focused selections of trailers to help you find that next movie faster.</p><p>The best part? It's free. <small>(I'm not trying to get sued by Disney's army of lawyers, so yeah, you can self-host)</small></p><footer><p>Powered by the <a href=\"https://www.themoviedb.org/\">TMDB</a> API</p></footer></article>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div><h1>Summary</h1><p>You liked these movies:</p><ul>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		for _, recommendation := range recommendations {
+			watchURL := templ.SafeURL(recommendation.WatchURL())
+			templ_7745c5c3_Err = components.MovieResultCard(recommendation, watchURL).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</ul></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

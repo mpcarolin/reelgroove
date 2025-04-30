@@ -66,10 +66,8 @@ templ SavedRecommendations(data *RecommendationViewModel) {
 templ SavedRecommendationsContent(data *RecommendationViewModel) {
     for _, recommendation := range data.Recommendations {
         if slices.Contains(data.UserLikes, strconv.Itoa(recommendation.Id)) {
-            {{ detailsURL := templ.SafeURL("https://www.themoviedb.org/movie/" + strconv.Itoa(recommendation.Id)) + "/watch" }}
-            <a href={detailsURL} class="saved-recommendation-link" target="_blank">
-                @components.MovieResultCard(recommendation)
-            </a>
+            {{ watchURL := templ.SafeURL(recommendation.WatchURL()) }}
+            @components.MovieResultCard(recommendation, watchURL)
         }
     }
 }

@@ -1,0 +1,19 @@
+package pages
+
+import (
+	"github.com/mpcarolin/cinematch-server/internal/models"
+	"github.com/mpcarolin/cinematch-server/internal/ui/components"
+)
+
+templ Summary(recommendations []models.Movie) {
+	<div>
+		<h1>Summary</h1>
+		<p>You liked these movies:</p>
+        <ul>
+            for _, recommendation := range recommendations {
+                {{ watchURL := templ.SafeURL(recommendation.WatchURL()) }}
+                @components.MovieResultCard(recommendation, watchURL)
+            }
+		</ul>
+	</div>
+}

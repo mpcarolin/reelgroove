@@ -22,10 +22,16 @@ func LikeRecommendation(c echo.Context) error {
 		return err
 	}
 
+	if recommendationViewModel.NextRecommendationId == recommendationViewModel.CurrentRecommendationId {
+		// there are no more recommendations, so redirect to the summary page
+		return redirectToSummary(c, recommendationViewModel.MovieId)
+	}
+
 	// add the current recommendation to the user's likes cookie, then update the cookie
 	recommendationViewModel.UserLikes = append(recommendationViewModel.UserLikes, strconv.Itoa(recommendationViewModel.CurrentRecommendationId))
 	userLikesCookie := utils.CreateUserLikesCookie(recommendationViewModel.UserLikes)
 	http.SetCookie(c.Response().Writer, userLikesCookie)
+
 
 	// update the current recommendation id to the next recommendation id
 	recommendationViewModel.CurrentRecommendationId = recommendationViewModel.NextRecommendationId
@@ -33,10 +39,6 @@ func LikeRecommendation(c echo.Context) error {
 
 	// update the client url to the next recommendation
 	nextRecommendationUrl := models.GetRecommendationUrl(recommendationViewModel.MovieId, recommendationViewModel.NextRecommendationId, &recommendationViewModel.Settings.Autoplay)
-	if nextRecommendationUrl == c.Request().Header.Get("HX-Current-Url") {
-		// TODO: redirect to a DIFFERENT PAGE that summarizes the saved recommendations
-		// OR get next page of recommendations
-	}
 
 	c.Response().Header().Set(
 		"HX-Push-Url",
@@ -51,6 +53,11 @@ func SkipRecommendation(c echo.Context) error {
 	recommendationViewModel, err := InitRecommendationViewModel(c)
 	if err != nil {
 		return err
+	}
+
+	if recommendationViewModel.NextRecommendationId == recommendationViewModel.CurrentRecommendationId {
+		// there are no more recommendations, so redirect to the summary page
+		return redirectToSummary(c, recommendationViewModel.MovieId)
 	}
 
 	recommendationViewModel.UserLikes = slices.DeleteFunc(recommendationViewModel.UserLikes, func(like string) bool { return like == strconv.Itoa(recommendationViewModel.CurrentRecommendationId) })
@@ -68,6 +75,17 @@ func SkipRecommendation(c echo.Context) error {
 	)
 
 	return pages.Recommendation(recommendationViewModel).Render(context.Background(), c.Response().Writer)
+}
+
+func redirectToSummary(c echo.Context, movieId int) error {
+	summaryUrl := "/movie/" + strconv.Itoa(movieId) + "/recommendation-summary"
+
+	c.Response().Header().Set(
+		"HX-Redirect",
+		summaryUrl,
+	)
+
+	return c.String(http.StatusOK, "Redirecting to summary page")
 }
 
 // TODO: refactor. This is slightly confusing because it gets the NEXT recommendation id's trailer!
@@ -115,6 +133,12 @@ func InitRecommendationViewModel(c echo.Context) (*pages.RecommendationViewModel
 	return &recommendationViewModel, nil
 }
 
+func IsLastRecommendation(recommendations []models.Movie, currentRecommendationId int) bool {
+	currentRecommendationIndex := slices.IndexFunc(recommendations, func(recommendation models.Movie) bool { return recommendation.Id == currentRecommendationId })
+	return currentRecommendationIndex == len(recommendations) - 1
+}
+
+// Returns the next recommendation id, or -1 if the current recommendation is the last one
 func GetNextRecommendationId(recommendations []models.Movie, currentRecommendationId int) int {
 	currentRecommendationIndex := slices.IndexFunc(recommendations, func(recommendation models.Movie) bool { return recommendation.Id == currentRecommendationId })
 	nextRecommendationIndex := math.Min(float64(currentRecommendationIndex+1), float64(len(recommendations)-1))

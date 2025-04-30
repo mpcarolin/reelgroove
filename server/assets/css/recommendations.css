@@ -88,8 +88,3 @@
     flex-direction: column;
     width: 100%;
 }
-
-.saved-recommendation-link {
-    text-decoration: none;
-    color: inherit;
-}

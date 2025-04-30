@@ -27,6 +27,10 @@ func (m Movie) RecommendationURL() string {
 	return "/movie/" + strconv.Itoa(m.Id) + "/recommendations"
 }
 
+func (m Movie) WatchURL() string {
+	return "https://www.themoviedb.org/movie/" + strconv.Itoa(m.Id) + "/watch"
+}
+
 type MovieSearchResponse struct {
 	Page         int `json:"page"`
 	Results      []Movie `json:"results"`
