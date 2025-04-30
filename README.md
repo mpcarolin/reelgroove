@@ -18,9 +18,20 @@ TMDB_API_KEY=<your api key here>
 - Persist redis so that cached data isn't lost when redis dies
 - Add support for user profiles, sign-ups and sign-in, to save liked movies for later review
     - Also implies will need to add db
+- While watching one reel, allow user to start a new reel from any movie in the current one
+- Allow users to build their OWN reels. Have a search / categorization / sharing / discovery page for this.
+- Start random reels from genres
 - Maybe some more info about reel's base movie and current trailer
 - Add logic to fetch more pages of data from TMDB for longer reels
 - Improved summary page (more info, more to do?)
 - Better error handling
 - Logo
 - Better TMDB and JustWatch attribution with [logos](https://www.themoviedb.org/about/logos-attribution)
+- Maybe consider different word than "reel", might be confusing with instagram...
+- Research copyright laws. [This guy claims to make $9000/mo from this kind of content](https://adsterra.com/blog/earn-from-movie-trailer-website/)
+- Add support for TV shows
+- Analyze general costs of the website.
+  - Domain: ~$12/year
+  - Cloud: ~$?/month
+  - TMDB Commercial License: $150/mo!
+  - Income: ???
